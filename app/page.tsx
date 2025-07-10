@@ -1,103 +1,149 @@
-import Image from "next/image";
+'use client';
+
+import * as React from 'react';
+import {AdapterDayjs} from '@mui/x-date-pickers/AdapterDayjs';
+import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
+import {DateCalendar} from '@mui/x-date-pickers/DateCalendar';
+import {
+    Box,
+    Card,
+    Typography,
+    Button,
+} from '@mui/material';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import PersonIcon from '@mui/icons-material/Person';
+
+import Pacientes from "./dataTest/data.json";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    return (
+        <Box
+            sx={{
+                display: 'grid',
+                gridTemplateColumns: {xs: '1fr', md: '2fr 1fr'},
+                gap: 3,
+                p: 3,
+            }}>
+            <Box className="border-r pr-5 border-gray-400 my-6">
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DateCalendar
+                        showDaysOutsideCurrentMonth
+                        fixedWeekNumber={6}
+                    />
+                </LocalizationProvider>
+                <Typography variant="h4" sx={{fontWeight:"semi-bold", marginY:5}} className="text-center">
+                    Citas programadas para el día de hoy
+                </Typography>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+                <Box
+                    display="grid"
+                    gridTemplateColumns={{xs: '1fr', sm: '1fr 1fr'}}
+                    gap={2}>
+                    {Pacientes.map((paciente) => (
+
+                    ))}
+                </Box>
+            </Box>
+
+
+
+
+            <Box display="flex" flexDirection="column" gap={3} >
+                <Box display="grid" gridTemplateColumns="1fr 1fr" gap={1} p={2} bgcolor="#fff" boxShadow={2}
+                     borderRadius={2} className="h-96 w-96 text-center mx-auto">
+                    <Box textAlign="center">
+                        <Typography variant="h2" fontWeight="bold">{Pacientes.length}</Typography>
+                        <Typography variant="h5">Citas Hoy</Typography>
+                    </Box>
+                    <Box textAlign="center">
+                        <Typography variant="h2" fontWeight="bold">1</Typography>
+                        <Typography variant="h5">Cancelada</Typography>
+                    </Box>
+                    <Box textAlign="center" gridColumn="span 2" pt={1} borderTop="1px solid #eee">
+                        <Typography variant="h2" fontWeight="bold">2</Typography>
+                        <Typography variant="h5">Nuevos Pacientes</Typography>
+                    </Box>
+                </Box>
+
+                <Typography variant="h6" fontWeight="bold">
+                    Citas Próximas
+                </Typography>
+
+                {[...Pacientes.slice(0, 2)].map((paciente) => (
+                    <Card
+                        key={paciente.numero_identificacion + "_proxima"}
+                        sx={{
+                            p: 2,
+                            borderRadius: 3,
+                            boxShadow: 1,
+                            bgcolor: '#fff',
+                        }}>
+                        <Box display="flex" alignItems="center" mb={1}>
+                            <Box
+                                sx={{
+                                    width: 36,
+                                    height: 36,
+                                    borderRadius: '50%',
+                                    backgroundColor: '#f0f0f0',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    mr: 2,
+                                }}>
+                                <PersonIcon fontSize="small"/>
+                            </Box>
+                            <Box>
+                                <Typography variant="subtitle2" fontWeight="bold">
+                                    {paciente.nombre}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    Limpieza Dental
+                                </Typography>
+                            </Box>
+                        </Box>
+
+                        <Box
+                            display="flex"
+                            justifyContent="space-between"
+                            bgcolor="#f4f6f8"
+                            px={2}
+                            py={1}
+                            borderRadius={2}
+                            mb={2}>
+                            <Box display="flex" alignItems="center" gap={1}>
+                                <CalendarMonthIcon fontSize="small"/>
+                                <Typography variant="caption">18-06-2024</Typography>
+                            </Box>
+                            <Box display="flex" alignItems="center" gap={1}>
+                                <AccessTimeIcon fontSize="small"/>
+                                <Typography variant="caption">11.00 – 12:00 AM</Typography>
+                            </Box>
+                        </Box>
+
+                        <Box display="flex" justifyContent="space-between">
+                            <Button
+                                size="small"
+                                variant="outlined"
+                                sx={{borderRadius: 2, textTransform: 'none'}}>
+                                Citar
+                            </Button>
+                            <Button
+                                size="small"
+                                variant="contained"
+                                sx={{
+                                    bgcolor: '#33bfff',
+                                    color: '#fff',
+                                    textTransform: 'none',
+                                    borderRadius: 2,
+                                    '&:hover': {bgcolor: '#1daae8'},
+                                }}>
+                                Re-Agendar
+                            </Button>
+                        </Box>
+                    </Card>
+                ))}
+            </Box>
+        </Box>
+    );
 }

@@ -1,0 +1,108 @@
+[
+  {
+    "nombre": "María Fernanda",
+    "apellidos": "López Ortega",
+    "email": "mf.lopez@example.com",
+    "telefono": "+52 222 345 6789",
+    "fecha_nacimiento": "1990-03-12",
+    "genero": "Femenino",
+    "pais_origen": "México",
+    "direccion": "Av. Juárez 345, Puebla, PUE",
+    "notas": "Paciente nerviosa con tendencia a posponer citas.",
+    "alergias": [
+      "Penicilina",
+      "Polvo dental"
+    ],
+    "profesion": "Arquitecta",
+    "numero_identificacion": "LOOM900312MXPLRZA3",
+    "nombre_contacto_emergencia": "Luis Ortega",
+    "telefono_contacto_emergencia": "+52 222 999 1234"
+  },
+  {
+    "nombre": "Carlos",
+    "apellidos": "Ramírez Díaz",
+    "email": "c.ramirez@example.com",
+    "telefono": "+52 553 876 5432",
+    "fecha_nacimiento": "1985-07-22",
+    "genero": "Masculino",
+    "pais_origen": "México",
+    "direccion": "Calle 5 Sur #88, CDMX",
+    "notas": "Bruxismo nocturno, recomienda férula.",
+    "alergias": [],
+    "profesion": "Contador público",
+    "numero_identificacion": "RADC850722HMCLRZ06",
+    "nombre_contacto_emergencia": "Ana Díaz",
+    "telefono_contacto_emergencia": "+52 556 778 9988"
+  },
+  {
+    "nombre": "Isabella",
+    "apellidos": "González Meza",
+    "email": "isa.gonzalez@example.com",
+    "telefono": "+52 998 456 3210",
+    "fecha_nacimiento": "2000-11-04",
+    "genero": "Femenino",
+    "pais_origen": "México",
+    "direccion": "Carr. Cancún-Tulum km 12, Quintana Roo",
+    "notas": "Tratamiento de ortodoncia activo.",
+    "alergias": [
+      "Latex"
+    ],
+    "profesion": "Estudiante de ingeniería biomédica",
+    "numero_identificacion": "GOMI001104MQCNZB06",
+    "nombre_contacto_emergencia": "Rosa Meza",
+    "telefono_contacto_emergencia": "+52 998 999 8899"
+  },
+  {
+    "nombre": "Renato",
+    "apellidos": "Santos Cabrera",
+    "email": "renato.sc@example.com",
+    "telefono": "+52 444 789 3210",
+    "fecha_nacimiento": "1995-09-18",
+    "genero": "Masculino",
+    "pais_origen": "México",
+    "direccion": "Priv. del Bosque 15, San Luis Potosí, SLP",
+    "notas": "Requiere revisión de implante dental colocado en 2022.",
+    "alergias": [
+      "Ibuprofeno"
+    ],
+    "profesion": "Diseñador gráfico",
+    "numero_identificacion": "SACR950918HZSLRN06",
+    "nombre_contacto_emergencia": "Laura Cabrera",
+    "telefono_contacto_emergencia": "+52 444 112 3344"
+  },
+  {
+    "nombre": "Claudia",
+    "apellidos": "Ruiz Méndez",
+    "email": "claudia.rm@example.com",
+    "telefono": "+52 818 345 6678",
+    "fecha_nacimiento": "1988-05-27",
+    "genero": "Femenino",
+    "pais_origen": "México",
+    "direccion": "Av. Revolución 875, Monterrey, NL",
+    "notas": "Tiene historial de caries profundas y sensibilidad al frío.",
+    "alergias": [],
+    "profesion": "Abogada corporativa",
+    "numero_identificacion": "RUMC880527MFNLZL03",
+    "nombre_contacto_emergencia": "Raúl Méndez",
+    "telefono_contacto_emergencia": "+52 818 444 2211"
+  },
+  {
+    "nombre": "Miguel Ángel",
+    "apellidos": "Serrano Padilla",
+    "email": "miguel.serrano@example.com",
+    "telefono": "+52 667 232 9988",
+    "fecha_nacimiento": "1979-12-02",
+    "genero": "Masculino",
+    "pais_origen": "México",
+    "direccion": "Calle Magnolia #45, Culiacán, SIN",
+    "notas": "Paciente con diabetes tipo II. Controlar tipo de anestesia.",
+    "alergias": [
+      "Sulfa"
+    ],
+    "profesion": "Mecánico automotriz",
+    "numero_identificacion": "SEPM791202HSLRMG09",
+    "nombre_contacto_emergencia": "María Padilla",
+    "telefono_contacto_emergencia": "+52 667 311 4500"
+  }
+  
+]
