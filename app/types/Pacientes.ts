@@ -1,9 +1,12 @@
+import dayjs from "dayjs";
+
 interface Paciente {
+    usuario_id:string,
     nombre: string;
     apellidos: string;
     email: string;
     telefono: string;
-    fecha_nacimiento: string;
+    fecha_nacimiento: dayjs.Dayjs | Date;
     genero: "Femenino" | "Masculino" | "Otro";
     pais_origen: string;
     direccion: string;

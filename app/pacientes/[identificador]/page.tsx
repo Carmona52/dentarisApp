@@ -1,184 +1,280 @@
 'use client'
-import React from 'react';
+
+import dayjs from 'dayjs';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
-    Box,
-    Typography,
-    TextField,
-    MenuItem,
-    Button,
-    Avatar,
-    Chip,
-    FormControlLabel,
-    Checkbox,
-    Paper,
-    IconButton,
-    InputAdornment
+    Box, Button, TextField, CircularProgress, Typography, MenuItem,
+    Grid
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import SearchIcon from '@mui/icons-material/Search';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import {useParams} from "next/navigation";
+import { useParams } from 'next/navigation';
+import { Paciente } from '../../types/Pacientes';
+import { useRouter } from 'next/navigation'
 
-import paciente from "../../types/Pacientes";
-import datapacientes from "../../dataTest/data.json";
+const parseAlergias = (alergias: string | null | undefined): string[] =>
+    alergias?.split(',').map(a => a.trim()).filter(Boolean) ?? [];
 
 
+const stringifyAlergias = (alergias: string[]): string =>
+    alergias.join(',');
 
 export default function ConsultaForm() {
+     const router = useRouter();
+ 
     const params = useParams();
-    const identificador = params.identificador;
+    const id = Number(Array.isArray(params.identificador) ? params.identificador[0] : params.identificador);
 
-    const Paciente:paciente = datapacientes.find((p) => p.numero_identificacion === identificador);
-    return (
-        <Box
-            display="grid"
-            gridTemplateColumns={{ xs: '1fr', md: '300px 1fr' }}
-            gap={3}
-            p={3}>
+    const [formData, setFormData] = useState<Paciente | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-            <Box
-                p={3}
-                bgcolor="#f8f9fa"
-                borderRadius={2}
-                display="flex"
-                flexDirection="column"
-                gap={2}>
-                <Avatar
-                    alt={Paciente.nombre}
-                    src="images/profile.png"
-                    sx={{ width: 72, height: 72, mb: 1 }}
-                />
-                <Typography variant="h6">{Paciente.nombre} {Paciente.apellidos}</Typography>
-                <Typography variant="body2" color="text.secondary">
-                    22 años, {Paciente.genero}
-                </Typography>
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!id || isNaN(id)) {
+            setError('Identificador de paciente no válido');
+            setLoading(false);
+            return;
+        }
+        if (!token) {
+            setError('Token no disponible');
+            setLoading(false);
+            return;
+        }
 
-                <Box>
-                    <Typography variant="caption" color="text.secondary">Email</Typography>
-                    <Typography variant="body2">{Paciente.email}</Typography>
-                </Box>
+        const fetchPaciente = async () => {
+            try {
+                const res = await fetch(`http://localhost:3001/api/auth/patients/${id}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
 
-                <Box>
-                    <Typography variant="caption" color="text.secondary">Teléfono</Typography>
-                    <Typography variant="body2">{Paciente.telefono}</Typography>
-                </Box>
+                const { paciente, error } = await res.json();
 
-                <Box>
-                    <Typography variant="caption" color="text.secondary">Fecha de Nacimiento</Typography>
-                    <Typography variant="body2">{Paciente.fecha_nacimiento}</Typography>
-                </Box>
-
-                <Box>
-                    <Typography variant="caption" color="text.secondary">Alergias</Typography>
-
-
-                    {Paciente.alergias? <Typography variant="body2">{Paciente.alergias}</Typography> :
-                        <Typography variant="body2">Ninguna</Typography>}
-
-                </Box>
-
-                <Button variant="contained" sx={{ mt: 2, borderRadius: 2 }}>
-                    Gestionar Paciente
-                </Button>
-            </Box>
-
-            <Box display="flex" flexDirection="column" gap={3}>
-                <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }} gap={2}>
-                    <TextField
-                        label="Médico Encargado"
-                        defaultValue="Dr. Stephen Conley"
-                        fullWidth
-                        InputProps={{
-                            endAdornment: (
-                                <InputAdornment position="end">
-                                    <SearchIcon />
-                                </InputAdornment>
-                            ),
-                        }}
-                    />
-                    <TextField
-                        label="Motivo de Consulta"
-                        select
-                        defaultValue="Clinic Consulting"
-                        fullWidth
-                    >
-                        <MenuItem value="Clinic Consulting">Consulta Medica</MenuItem>
-                        <MenuItem value="Evaluación">Evaluación</MenuItem>
-                        <MenuItem value="Otro">Otro</MenuItem>
-                    </TextField>
-                </Box>
-
-                <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }} gap={2}>
-                    <TextField label="Hora de la cita" defaultValue="11:20 PM" fullWidth />
-                    <TextField label="Fecha de la cita" type="date" defaultValue="2025-06-14" fullWidth InputLabelProps={{ shrink: true }} />
-                </Box>
-
-                <TextField
-                    label="Motivo de Consulta"
-                    multiline
-                    rows={2}
-                    placeholder="Ingrese el motivo de la consulta"
-                    fullWidth
-                />
-                {
-                    Paciente.notas?  <TextField
-                        label="Notas"
-                        multiline
-                        rows={3}
-                        defaultValue={Paciente.notas}
-                        fullWidth
-                    />: <TextField
-                        label="Notas"
-                        multiline
-                        rows={3}
-                        placeholder="Ingrese aquí sus notas"
-                        fullWidth
-                    />
+                if (!res.ok) {
+                    setError(error ?? 'No se pudo obtener el paciente');
+                } else {
+                    setFormData({
+                        ...paciente,
+                        alergias: parseAlergias(paciente.alergias)
+                    });
                 }
+            } catch {
+                setError('Error de red al obtener paciente');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchPaciente();
+    }, [id]);
+
+    const handleChange = useCallback(
+        (field: keyof Paciente) => (e: React.ChangeEvent<HTMLInputElement>) => {
+            setFormData(prev => prev ? { ...prev, [field]: e.target.value } : prev);
+        },
+        []
+    );
+
+    const handleAlergiasChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setFormData(prev =>
+            prev ? { ...prev, alergias: parseAlergias(value) } : prev
+        );
+    };
+
+    const handleSubmit = async () => {
+        const token = localStorage.getItem('token');
+        if (!token || !formData) return;
+
+        try {
+            const res = await fetch(`http://localhost:3001/api/auth/patients/${id}`, {
+                method: 'PUT',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    ...formData,
+                    alergias: stringifyAlergias(formData.alergias ?? []),
+                    fecha_de_nacimiento: dayjs(formData.fecha_nacimiento).format('YYYY-MM-DD')
+                }),
+            });
+
+            const { error } = await res.json();
+            if (!res.ok) alert(`Error: ${error ?? 'No se pudo actualizar'}`);
+            else alert('Paciente actualizado correctamente'), 
+            setTimeout(() => {router.push('/pacientes'),1000});
+        } catch {
+            alert('Error de red al actualizar');
+        }
+    };
+
+    const handleDelete = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        if (!confirm('¿Estás seguro de que deseas eliminar este paciente?')) return;
+
+        try {
+            const res = await fetch(`http://localhost:3001/api/auth/patients/${id}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            const { error } = await res.json();
+            if (!res.ok) alert(`Error: ${error ?? 'No se pudo eliminar'}`);
+            else alert('Paciente eliminado correctamente'), 
+            setTimeout(() => {router.push('/pacientes'),1000});
+        } catch {
+            alert('Error de red al eliminar');
+        }
+    };
+
+    if (loading) {
+        return (
+            <Box p={4}>
+                <CircularProgress />
+            </Box>
+        );
+    }
+
+    if (error) {
+        return (
+            <Box p={4} textAlign="center">
+                <Typography color="error">{error}</Typography>
+            </Box>
+        );
+    }
+
+    const generos = [
+        { label: 'Femenino', value: 'F' },
+        { label: 'Masculino', value: 'M' },
+        { label: 'Otro', value: 'O' }
+    ];
+
+      
 
 
+    return (
+        
+        <>
+            <Grid container spacing={2} sx={{ mt: 2, mb: 2 }}>
+                <Grid>
+                    <img
+                        src='/images/profile.png'
+                        alt="Foto del Paciente"
+                        style={{ width: '80%', height: 'auto', borderRadius: '8px' }}
+                    />
+                </Grid>
 
-                <FormControlLabel control={<Checkbox defaultChecked />} label="Visible para el Paciente" />
-
-                <Box>
-                    <Typography variant="subtitle2" gutterBottom>
-                        Añadir imágenes (Opcional)
+                <Grid sx={{ width: '60%' }}>
+                    <Typography variant="h4" gutterBottom sx={{ textAlign: 'center', mt: 2 }}>
+                        Editar Paciente
                     </Typography>
 
-                    <Paper
-                        variant="outlined"
-                        sx={{
-                            borderStyle: 'dashed',
-                            p: 2,
-                            textAlign: 'center',
-                            bgcolor: '#fcfcfc',
-                        }}
-                    >
-                        <CloudUploadIcon sx={{ fontSize: 40, color: '#ccc' }} />
-                        <Typography variant="body2" color="text.secondary">
-                            Drop your file here, or <strong>Browse</strong>
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                            Max size: 10MB
-                        </Typography>
-                    </Paper>
+                    <Box display="flex" flexDirection="column" gap={2}>
+                        <TextField
+                            label="Nombre"
+                            value={formData?.nombre || ''}
+                            onChange={handleChange('nombre')}
+                            fullWidth
+                        />
+                        <TextField
+                            label="Apellidos"
+                            value={formData?.apellidos || ''}
+                            onChange={handleChange('apellidos')}
+                            fullWidth
+                        />
+                        <TextField
+                            label="Email"
+                            value={formData?.email || ''}
+                            onChange={handleChange('email')}
+                            fullWidth
+                        />
+                        <TextField
+                            label="Teléfono"
+                            value={formData?.telefono || ''}
+                            onChange={handleChange('telefono')}
+                            fullWidth
+                        />
+                        <TextField
+                            label="Fecha de Nacimiento"
+                            type="date"
+                            value={dayjs(formData?.fecha_nacimiento).format('YYYY-MM-DD')}
+                            onChange={handleChange('fecha_nacimiento')}
+                            fullWidth
+                            InputLabelProps={{ shrink: true }}
+                        />
+                        <TextField
+                            select
+                            name="genero"
+                            label="Seleccione el género"
+                            value={formData?.genero || ''}
+                            required
+                            fullWidth
+                            onChange={handleChange('genero')}
+                        >
+                            {generos.map((option) => (
+                                <MenuItem key={option.value} value={option.value}>
+                                    {option.label}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                        <TextField
+                            label="Alergias"
+                            value={formData?.alergias?.join(', ') || ''}
+                            onChange={handleAlergiasChange}
+                            fullWidth
+                        />
+                        <TextField
+                            label="Notas"
+                            multiline
+                            rows={3}
+                            value={formData?.notas || ''}
+                            onChange={handleChange('notas')}
+                            fullWidth
+                        />
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', my: 3 }}>
 
-                    <Box
-                        mt={2}
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="space-between"
-                        p={1}
-                        border="1px solid #e0e0e0"
-                        borderRadius={1}
-                    >
-                        <Typography variant="body2">HistorialPaciente.pdf</Typography>
-                        <IconButton size="small">
-                            <DeleteIcon fontSize="small" />
-                        </IconButton>
+                            <Button onClick={handleDelete} sx={{
+                                backgroundColor: "white", color: "gray", p: 2, px: 10,
+                                '&:hover': {
+                                    bgcolor: '#d32f2f',
+                                    color: '#fff',
+                                }
+                            }} >
+                                <Typography variant="body2" component="h2">
+                                    Eliminar Paciente
+                                </Typography>
+                            </Button>
+
+                            <Button onClick={()=>{router.push("/pacientes")}} sx={{
+                                backgroundColor: "#d32f2f", color: "white", p: 2, px: 10,
+                                '&:hover': {
+                                    bgcolor: '#d32f2f',
+                                    color: '#fff',
+                                }
+                            }} >
+                                <Typography variant="body2" component="h2">
+                                    Cancelar
+                                </Typography>
+                            </Button>
+
+                            <Button variant='outlined' onClick={handleSubmit} sx={{
+                                backgroundColor: "#0647A0", color: "white", p: 2, px: 10,
+                                '&:hover': {
+                                    bgcolor: '#0661D9',
+                                    color: '#fff',
+                                }
+                            }} >
+                                <Typography variant="body2" component="h2">
+                                    Guardar
+                                </Typography>
+                            </Button>
+
+                        </Box>
                     </Box>
-                </Box>
-            </Box>
-        </Box>
+                </Grid>
+            </Grid>
+
+        </>
     );
 }

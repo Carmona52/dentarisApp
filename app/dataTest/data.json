@@ -1,5 +1,6 @@
 [
   {
+    "usuario_id": 1,
     "nombre": "María Fernanda",
     "apellidos": "López Ortega",
     "email": "mf.lopez@example.com",
@@ -19,6 +20,7 @@
     "telefono_contacto_emergencia": "+52 222 999 1234"
   },
   {
+    "usuario_id": 2,
     "nombre": "Carlos",
     "apellidos": "Ramírez Díaz",
     "email": "c.ramirez@example.com",
@@ -35,6 +37,7 @@
     "telefono_contacto_emergencia": "+52 556 778 9988"
   },
   {
+    "usuario_id": 3,
     "nombre": "Isabella",
     "apellidos": "González Meza",
     "email": "isa.gonzalez@example.com",
@@ -53,6 +56,7 @@
     "telefono_contacto_emergencia": "+52 998 999 8899"
   },
   {
+    "usuario_id": 4,
     "nombre": "Renato",
     "apellidos": "Santos Cabrera",
     "email": "renato.sc@example.com",
@@ -71,6 +75,7 @@
     "telefono_contacto_emergencia": "+52 444 112 3344"
   },
   {
+    "usuario_id": 5,
     "nombre": "Claudia",
     "apellidos": "Ruiz Méndez",
     "email": "claudia.rm@example.com",
@@ -87,6 +92,7 @@
     "telefono_contacto_emergencia": "+52 818 444 2211"
   },
   {
+    "usuario_id": 6,
     "nombre": "Miguel Ángel",
     "apellidos": "Serrano Padilla",
     "email": "miguel.serrano@example.com",

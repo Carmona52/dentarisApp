@@ -15,9 +15,7 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import AddPaciente from "./popUps/AddPaciente";
-import { Cita } from "../types/Citas";
-import {Paciente } from "../types/Pacientes"
+import { Paciente } from "../types/Pacientes";
 import dayjs from "dayjs";
 
 export default function TablaPacientes() {
@@ -36,7 +34,7 @@ export default function TablaPacientes() {
             }
 
             try {
-                const response = await fetch("http://localhost:3001/api/auth/patients", {
+                const response = await fetch("http://localhost:3001/api/auth/dentist", {
                     method: "GET",
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -49,7 +47,7 @@ export default function TablaPacientes() {
                     console.error("Error del servidor:", errorData);
                     setError(
                         `Error ${response.status}: ${
-                            errorData.message || "No se pudo obtener pacientes."
+                            errorData.message || "No se pudo obtener dentistas."
                         }`
                     );
                     return;
@@ -69,6 +67,15 @@ export default function TablaPacientes() {
 
         getPacientes();
     }, []);
+
+    const formatFecha = (fechaIso: string) => {
+        try {
+            const date = new Date(fechaIso);
+            return date.toLocaleDateString("es-MX");
+        } catch {
+            return "Fecha inválida";
+        }
+    };
 
     const formatGenero = (g: string) => {
         const map: Record<string, string> = {
@@ -91,9 +98,7 @@ export default function TablaPacientes() {
                     variant="outlined"
                     value={busqueda}
                     onChange={(e) => setBusqueda(e.target.value)}
-                    className="w-128"
-                />
-                <AddPaciente />
+                    className="w-128"/>
             </Box>
 
             {error ? (
@@ -131,8 +136,7 @@ export default function TablaPacientes() {
                                         <Button
                                             variant="outlined"
                                             size="small"
-                                            onClick={() => router.push(`/pacientes/${paciente.usuario_id}`)}
-                                        >
+                                            onClick={() => router.push(`/pacientes/${paciente.usuario_id}`)} >
                                             Ver Paciente
                                         </Button>
                                     </TableCell>

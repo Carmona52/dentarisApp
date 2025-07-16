@@ -1,14 +1,25 @@
-"use client";
+'use client';
 
-import { usePathname } from "next/navigation";
+import { useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { Box } from "@mui/material";
 import NavBar from "@/app/components/NavBars/Navbar";
 import SideBar from "@/app/components/NavBars/SideBar";
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
+    const router = useRouter();
     const pathname = usePathname();
     const excludedRoutes = ["/login", "/register"];
     const isExcluded = excludedRoutes.includes(pathname);
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token && !isExcluded) {
+            router.push("/login");
+        }else{
+
+        }
+    }, [pathname]);
 
     if (isExcluded) return children;
 
@@ -19,7 +30,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
             </Box>
 
             <Box sx={{ display: "flex", flexGrow: 1 }}>
-                <Box sx={{ width: 250, maxHeight: "85vh", }}>
+                <Box sx={{ width: 250, maxHeight: "85vh" }}>
                     <SideBar />
                 </Box>
 

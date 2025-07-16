@@ -1,10 +1,12 @@
 'use client'
 import { LineChart } from '@mui/x-charts';
 import { PieChart } from '@mui/x-charts';
-import { DataGrid } from '@mui/x-data-grid';
-import { Paciente } from "../types/Pacientes";
 import pacientes from "../dataTest/data.json";
 import {Box} from "@mui/material";
+import { GridColDef } from '@mui/x-data-grid';
+
+import TablePaciente from "@/app/components/tables/TablePaciente";
+
 
 export default function miClinica() {
 
@@ -21,7 +23,7 @@ export default function miClinica() {
         { id: 2, value: 234098, label: 'Otros' },
     ];
 
-    const columns = [
+    const columns:GridColDef[] = [
         { field: 'nombre', headerName: 'Nombre de Paciente', flex: 1 },
         { field: 'servicio', headerName: 'Servicio', flex: 1 },
         { field: 'fecha', headerName: 'Fecha', flex: 1 },
@@ -31,7 +33,9 @@ export default function miClinica() {
         {
             field: 'accion',
             headerName: 'Acción',
-            renderCell: () => <button>Ver</button>,
+            renderCell: (params) => (
+                <button onClick={() => console.log(params.row)}>Ver</button>
+            ),
             flex: 1,
         },
     ];
@@ -51,15 +55,10 @@ export default function miClinica() {
                 series={[{ data: gastos, innerRadius: 40, outerRadius: 80 }]}
                 height={250}/>
             </Box>
-            <DataGrid
-                rows={pacientes}
+            <TablePaciente
                 columns={columns}
-                getRowId={(row) => row.numero_identificacion}
-                autoHeight
-                disableRowSelectionOnClick
-                sx={{ borderRadius: 2, boxShadow: 2 }}
-            />
-
+                data={pacientes}
+                getRowId={(row) => row.numero_identificacion}/>
 
         </>
     )

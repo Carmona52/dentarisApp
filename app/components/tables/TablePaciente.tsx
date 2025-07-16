@@ -1,9 +1,8 @@
 import { DataGrid } from '@mui/x-data-grid';
 import React from "react";
+import { tablePacienteProps } from "@/app/miClinica/types/DataType";
 
-import {tablePacienteProps} from "@/app/miClinica/types/DataType";
-
-const TablaPacientes:React.FC<tablePacienteProps> = ({columns, data})=>{
+const TablaPacientes: React.FC<tablePacienteProps> = ({ columns, data }) => {
     return (
         <DataGrid
             rows={data}
@@ -13,8 +12,7 @@ const TablaPacientes:React.FC<tablePacienteProps> = ({columns, data})=>{
             disableRowSelectionOnClick
             sx={{ borderRadius: 2, boxShadow: 2 }}
         />
-
     );
-}
+};
 
 export default TablaPacientes;

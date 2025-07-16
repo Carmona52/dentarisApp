@@ -1,21 +1,67 @@
 'use client'
 
-import {Box, Button, FormLabel, TextField, Typography} from '@mui/material';
+import {Alert, Box, Button, FormLabel, TextField, Typography} from '@mui/material';
 import {useRouter} from 'next/navigation';
+import {useState} from "react";
 
 export default function Register() {
 
     const router = useRouter()
+    const [name, setName] = useState('')
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [phone, setPhone] = useState('')
+    const [confirmPassword, setConfirmPassword] = useState('')
+    const [error, setError] = useState('')
+    const rol = "Administrador"
 
-    const handleLogin = (e: React.FormEvent) => {
+    const validateEmail = (email: string): boolean => {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        return regex.test(email)
+    }
+
+    const handleRegister = (e: React.FormEvent) => {
         e.preventDefault()
+        setError('')
 
-        const registerExitoso = true
-
-        if (registerExitoso) {
-            localStorage.setItem('token', 'simulado-123')
-            router.push('/login')
+        if (!validateEmail(email)) {
+            setError("Correo no válido")
+            return
         }
+
+        if (password.length < 8) {
+            setError("La contraseña debe tener 8 carácteres")
+            return;
+        } else if (password != confirmPassword) {
+            setError("Las contraseñas no coinciden")
+            return;
+        }
+
+
+        fetch("http://localhost:3001/api/auth/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                clinica: name,
+                telefono: phone,
+                email: email,
+                password: password,
+                rol: rol
+            })
+        })
+            .then(res => res.json())
+            .catch(err => {
+                console.error("Error de red:", err);
+            })
+            .then((response) => {
+                if (response.success === true) {
+                    <Alert severity="success">Inicio de Sesión correcto</Alert>
+                    setTimeout(() => router.push("/login"), 1500)
+                }
+            })
+
     }
 
     return (
@@ -28,7 +74,7 @@ export default function Register() {
 
                 <Box className="text-center mb-6 -mt-10">
                     <Typography variant="h3" sx={{fontWeight: 'semi-bold', color: 'bold'}}>
-                       Crear una cuenta
+                        Crear una cuenta
                     </Typography>
                     <Typography variant="body2" className="text-gray-600">
                         Por favor, ingrese los datos de su clinica a continuación
@@ -39,21 +85,26 @@ export default function Register() {
                     <div>
                         <FormLabel>Ingrese el Nombre de su clínica <span className="text-red-500">*</span></FormLabel>
                         <TextField fullWidth
-                        variant="outlined"
-                        placeholder="Mi clinica"
-                        className="bg-white"/>
+                                   value={name}
+                                   onChange={(e) => setName(e.target.value)}
+                                   variant="outlined"
+                                   placeholder="Mi clinica"
+                                   className="bg-white"/>
                     </div>
                     <div>
                         <FormLabel className="text-gray-700">Correo <span className="text-red-500">*</span></FormLabel>
-                        <TextField
-                            fullWidth
-                            variant="outlined"
-                            placeholder="Correo"
-                            className="bg-white"/>
+                        <TextField fullWidth
+                                   value={email}
+                                   onChange={(e) => setEmail(e.target.value)}
+                                   variant="outlined"
+                                   placeholder="Correo"
+                                   className="bg-white"/>
                     </div>
                     <div>
                         <FormLabel className="text-gray-700">Número de teléfono <span className="text-red-500">*</span></FormLabel>
                         <TextField fullWidth
+                                   value={phone}
+                                   onChange={(e) => setPhone(e.target.value)}
                                    type="number"
                                    variant="outlined"
                                    placeholder="1234567890"
@@ -61,50 +112,52 @@ export default function Register() {
                     </div>
 
                     <div>
-                        <FormLabel className="text-gray-700">Contraseña <span className="text-red-500">*</span></FormLabel>
+                        <FormLabel className="text-gray-700">Contraseña <span
+                            className="text-red-500">*</span></FormLabel>
                         <TextField fullWidth
-                            type="password"
-                            variant="outlined"
-                            placeholder="Contraseña"
-                            className="bg-white"/>
+                                   value={password}
+                                   onChange={(e) => setPassword(e.target.value)}
+                                   type="password"
+                                   variant="outlined"
+                                   placeholder="Contraseña"
+                                   className="bg-white"/>
                     </div>
 
                     <div>
                         <FormLabel className="text-gray-700">Confirmar contraseña<span className="text-red-500">*</span></FormLabel>
                         <TextField fullWidth
-                        type="password"
-                        variant="outlined"
-                        placeholder="Confirmar Contraseña"
-                        className="bg-white"/>
+                                   value={confirmPassword}
+                                   onChange={(e) => setConfirmPassword(e.target.value)}
+                                   type="password"
+                                   variant="outlined"
+                                   placeholder="Confirmar Contraseña"
+                                   className="bg-white"/>
                     </div>
 
-                    <Typography variant="caption" className="text-gray-500">
-                        Debe ser de al menos 8 caracteres
-                    </Typography>
+
+                    {error && <Typography variant="body2" className="text-red-600">{error}</Typography>}
 
                     <Button
                         type="submit"
                         variant="contained"
-                        className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleLogin}>
+                        className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleRegister}>
                         Registrarme
                     </Button>
                 </form>
 
-                <Box className="w-full border-t border-gray-300 my-6"/>
+                <Box className="w-full border-t border-gray-300 my-6 flex flex-row items-center justify-center">
 
-                <Button
-                    variant="outlined"
-                    className="flex items-center gap-2 text-gray-700 border-gray-400">
-                    <img
-                        src="/icons/google-svgrepo-com.svg"
-                        alt="Google"
-                        className="w-5 h-5"/>
-                    Registrarte con Google
-                </Button>
+
+                    <Typography variant="body2" className="mt-4 text-gray-600" onClick={() => router.push('/login')}>
+                        ¿Ya tienes Cuenta?{' '}
+                        <span className="text-blue-600 hover:underline cursor-pointer">¡Inicia Sesión!</span>
+                    </Typography>
+                </Box>
 
             </Box>
+
             <Box className="basis-2/3 flex items-center justify-center">
-                <Box sx={{ display: 'flex',}}>
+                <Box sx={{display: 'flex',}}>
                     <img
                         src="/loginIMG.jpg"
                         alt="Imagen de login"/>

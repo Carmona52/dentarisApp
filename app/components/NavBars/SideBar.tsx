@@ -19,7 +19,11 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle';
 import { useRouter, usePathname } from 'next/navigation';
+
+
+
 
 interface NavItem {
     text: string;
@@ -27,9 +31,16 @@ interface NavItem {
     path: string;
 }
 
+
 const NavigationSidebar: React.FC = () => {
     const router = useRouter();
     const pathname = usePathname();
+
+
+    const cerrarSesion = () => {
+        localStorage.clear();
+        router.push('/login');
+    }
 
     const section1: NavItem[] = [
         { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
@@ -39,22 +50,31 @@ const NavigationSidebar: React.FC = () => {
 
     const section2: NavItem[] = [
         { text: 'Mi clínica', icon: <LocalHospitalIcon />, path: '/miClinica' },
+        { text: 'Personal Médico', icon: <SupervisedUserCircleIcon />, path: '/dentistas' },
         { text: 'Cuenta', icon: <AccountCircleIcon />, path: '/cuenta' },
     ];
 
     const section3: NavItem[] = [
         { text: 'Ajustes', icon: <SettingsIcon />, path: '/ajustes' },
-        { text: 'Cerrar Sesión', icon: <ExitToAppIcon />, path: '/login' },
+        { text: 'Cerrar Sesión', icon: <ExitToAppIcon />, path: 'logout' },
     ];
+
 
     const renderSection = (items: NavItem[]) => (
         <List>
             {items.map(({ text, icon, path }) => {
                 const isActive = pathname === path;
+
                 return (
                     <ListItem
                         key={text}
-                        onClick={() => router.push(path)}
+                        onClick={() => {
+                            if (path === 'logout') {
+                                cerrarSesion();
+                            } else {
+                                router.push(path);
+                            }
+                        }}
                         sx={{
                             px: 2,
                             py: 1.5,
