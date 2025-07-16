@@ -9,17 +9,22 @@ import {
     Modal,
     Backdrop,
     Fade,
+    Divider,
 } from '@mui/material';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import PersonIcon from '@mui/icons-material/Person';
+import {
+    CalendarMonth as CalendarMonthIcon,
+    AccessTime as AccessTimeIcon,
+    Person as PersonIcon,
+    Close as CloseIcon,
+} from '@mui/icons-material';
 
 import { Cita } from '../../types/Citas';
+import { useRouter } from 'next/navigation';
+import EditCitaModal from '@/app/registroCitas/PopUps/EditCita';
 
 interface MyCardProps {
-    cita: Cita
+    cita: Cita;
 }
-
 
 const modalStyle = {
     position: 'absolute' as const,
@@ -31,17 +36,42 @@ const modalStyle = {
     borderRadius: 4,
     boxShadow: '0px 10px 30px rgba(0,0,0,0.2)',
     p: 4,
-    textAlign: 'center',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
 };
 
+const IconCircle = ({ children }: { children: React.ReactNode }) => (
+    <Box
+        sx={{
+            width: 48,
+            height: 48,
+            borderRadius: '50%',
+            backgroundColor: '#e0f7fa',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            mr: 2,
+        }}
+    >
+        {children}
+    </Box>
+);
+
 const MyCard: React.FC<MyCardProps> = ({ cita }) => {
+    const router = useRouter();
     const [open, setOpen] = useState(false);
+    const [modalAbierto, setModalAbierto] = useState(false);
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
+
+    const abrirModal = () => setModalAbierto(true);
+    const cerrarModal = () => setModalAbierto(false);
+
+    const CitaStart = () => {
+        router.push(`/registroCitas/${cita.id}`);
+    };
 
     return (
         <>
@@ -62,22 +92,10 @@ const MyCard: React.FC<MyCardProps> = ({ cita }) => {
                 }}
                 onClick={handleOpen}
             >
-                {/* Encabezado: paciente y tipo de cita */}
                 <Box display="flex" alignItems="center" mb={2}>
-                    <Box
-                        sx={{
-                            width: 48,
-                            height: 48,
-                            borderRadius: '50%',
-                            backgroundColor: '#e0f7fa',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            mr: 2,
-                        }}
-                    >
+                    <IconCircle>
                         <PersonIcon sx={{ color: '#00796b' }} />
-                    </Box>
+                    </IconCircle>
                     <Box>
                         <Typography variant="h6" fontWeight="bold" color="text.primary">
                             {cita.paciente.nombre}
@@ -88,11 +106,10 @@ const MyCard: React.FC<MyCardProps> = ({ cita }) => {
                     </Box>
                 </Box>
 
-                {/* Detalles: fecha y hora */}
                 <Box
                     display="flex"
-                    alignItems="center"
                     justifyContent="space-between"
+                    alignItems="center"
                     bgcolor="#f9fafb"
                     px={2}
                     py={1.5}
@@ -101,27 +118,52 @@ const MyCard: React.FC<MyCardProps> = ({ cita }) => {
                     <Box display="flex" alignItems="center" gap={1}>
                         <CalendarMonthIcon sx={{ fontSize: 20, color: '#1976d2' }} />
                         <Typography variant="body2" fontWeight="medium" color="text.primary">
-                            {cita.fecha.format("DD-MM-YYYY")}
+                            {cita.fecha.format('DD-MM-YYYY')}
                         </Typography>
                     </Box>
                     <Box display="flex" alignItems="center" gap={1}>
                         <AccessTimeIcon sx={{ fontSize: 20, color: '#1976d2' }} />
                         <Typography variant="body2" fontWeight="medium" color="text.primary">
-                            {cita.hora.format("hh:mm A")}
+                            {cita.hora.format('hh:mm A')}
                         </Typography>
                     </Box>
                 </Box>
             </Card>
 
-
+ 
             <Modal
                 open={open}
                 onClose={handleClose}
                 closeAfterTransition
                 slots={{ backdrop: Backdrop }}
-                slotProps={{ backdrop: { timeout: 500 } }}>
+                slotProps={{ backdrop: { timeout: 500 } }}
+            >
                 <Fade in={open}>
                     <Box sx={modalStyle}>
+                        <Box
+                            onClick={handleClose}
+                            sx={{
+                                position: 'absolute',
+                                top: 16,
+                                right: 16,
+                                p: '6px',
+                                borderRadius: '50%',
+                                backgroundColor: '#f44336',
+                                color: '#fff',
+                                cursor: 'pointer',
+                                transition: '0.3s ease',
+                                '&:hover': {
+                                    backgroundColor: '#d32f2f',
+                                    transform: 'scale(1.1)',
+                                    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                                },
+                            }}
+                        >
+                            <CloseIcon />
+                        </Box>
+
+                        <Divider sx={{ bgcolor: 'black', mt: 4, mb: 2 }} />
+
                         <Box
                             sx={{
                                 width: 60,
@@ -132,7 +174,8 @@ const MyCard: React.FC<MyCardProps> = ({ cita }) => {
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 mb: 2,
-                            }}>
+                            }}
+                        >
                             <CalendarMonthIcon sx={{ color: '#fff', fontSize: 30 }} />
                         </Box>
 
@@ -140,55 +183,41 @@ const MyCard: React.FC<MyCardProps> = ({ cita }) => {
                             Detalles de la Cita
                         </Typography>
 
-                        <Typography variant="body1" mb={1}>
-                            <strong>Paciente:</strong> {cita.paciente.nombre} {cita.paciente.apellidos}
-                        </Typography>
-                        <Typography variant="body1" mb={1}>
-                            <strong>Motivo:</strong> Limpieza Dental
-                        </Typography>
-                        <Typography variant="body1" mb={1}>
-                            <strong>Fecha:</strong> {cita.fecha.format("DD-MM-YYYY")}
-                        </Typography>
-                        <Typography variant="body1" mb={2}>
-                            <strong>Hora:</strong> {cita.hora.format("hh:mm A")}
-                        </Typography>
+                        <Typography variant="body1" mb={1}><strong>Paciente:</strong> {cita.paciente.nombre} {cita.paciente.apellidos}</Typography>
+                        <Typography variant="body1" mb={1}><strong>Motivo:</strong> Limpieza Dental</Typography>
+                        <Typography variant="body1" mb={1}><strong>Fecha:</strong> {cita.fecha.format("DD-MM-YYYY")}</Typography>
+                        <Typography variant="body1" mb={2}><strong>Hora:</strong> {cita.hora.format("hh:mm A")}</Typography>
 
-                        <Box display="flex" gap={2} mt={2}>
-                            <Button
-                                onClick={handleClose}
-                                variant="outlined"
-                                sx={{
-                                    borderRadius: 3,
-                                    px: 3,
-                                    borderColor: '#33bfff',
-                                    color: '#33bfff',
-                                    fontWeight: 500,
-                                    textTransform: 'none',
-                                    '&:hover': {
-                                        bgcolor: '#e6f7ff',
-                                    },
-                                }}>
-                                Re-Agendar
-                            </Button>
-                            <Button
-                                onClick={handleClose}
-                                variant="contained"
-                                sx={{
-                                    borderRadius: 3,
-                                    px: 3,
-                                    bgcolor: '#33bfff',
-                                    fontWeight: 500,
-                                    textTransform: 'none',
-                                    '&:hover': {
-                                        bgcolor: '#1daae8',
-                                    },
-                                }}>
-                                Empezar Cita
-                            </Button>
+                        <Box display="flex" gap={2}>
+                            {[{
+                                text: "Editar Cita",
+                                action: abrirModal
+                            }, {
+                                text: "Empezar Cita",
+                                action: CitaStart
+                            }].map(({ text, action }) => (
+                                <Button
+                                    key={text}
+                                    onClick={action}
+                                    variant="contained"
+                                    sx={{
+                                        borderRadius: 3,
+                                        px: 3,
+                                        bgcolor: '#33bfff',
+                                        fontWeight: 500,
+                                        textTransform: 'none',
+                                        '&:hover': { bgcolor: '#1daae8' },
+                                    }}
+                                >
+                                    {text}
+                                </Button>
+                            ))}
                         </Box>
                     </Box>
                 </Fade>
             </Modal>
+
+            <EditCitaModal id={cita.id} open={modalAbierto} handleClose={cerrarModal} />
         </>
     );
 };

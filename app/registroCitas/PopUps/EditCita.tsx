@@ -31,11 +31,14 @@ const style = {
 
 interface EditCitaModalProps {
     id: number;
+    open: boolean;
+    handleClose: () => void;
 }
 
-const EditCitaModal: React.FC<EditCitaModalProps> = ({ id }) => {
+
+
+const EditCitaModal: React.FC<EditCitaModalProps> = ({ id,open,handleClose }) => {
     const router = useRouter();
-    const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         fecha: '',
@@ -43,7 +46,6 @@ const EditCitaModal: React.FC<EditCitaModalProps> = ({ id }) => {
     });
 
     const handleOpen = async () => {
-        setOpen(true);
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
@@ -71,7 +73,6 @@ const EditCitaModal: React.FC<EditCitaModalProps> = ({ id }) => {
         }
     };
 
-    const handleClose = () => setOpen(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -127,9 +128,6 @@ const EditCitaModal: React.FC<EditCitaModalProps> = ({ id }) => {
 
     return (
         <div>
-            <Button variant="contained" onClick={handleOpen} sx={{ p: 2, px: 5 }}>
-                Editar Cita
-            </Button>
             <Modal
                 open={open}
                 onClose={handleClose}

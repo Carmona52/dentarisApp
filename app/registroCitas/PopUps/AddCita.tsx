@@ -6,6 +6,14 @@ import {
 import { useRouter } from 'next/navigation';
 import { Usuario } from '../types/DataType';
 
+
+interface openModalProps {    
+    open: boolean;
+    handleClose: () => void;
+}
+
+
+
 const style = {
     position: 'absolute' as const,
     top: '50%',
@@ -21,11 +29,15 @@ const style = {
     p: 3,
 };
 
-const AddCitaModal: React.FC = () => {
+
+
+const AddCitaModal: React.FC<openModalProps> = ({open, handleClose}) => {
+
+    if (!open) return null;
+
     const router = useRouter();
     const [paciente, setPaciente] = useState<Usuario[]>([]);
     const [dentista, setDentista] = useState<Usuario[]>([]);
-    const [open, setOpen] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [formData, setFormData] = useState({
         paciente_id: '',
@@ -34,13 +46,6 @@ const AddCitaModal: React.FC = () => {
         hora: '',
     });
 
-
-    const handleOpen = async () => {
-        setOpen(true);
-
-    };
-
-    const handleClose = () => setOpen(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -154,7 +159,7 @@ const AddCitaModal: React.FC = () => {
                     dentistasArray.map(d => ({
                         usuario_id: d.usuario_id,
                         nombre: d.nombre || "Sin nombre",
-                        apellido: d.apellidos || d.apellido || ""
+                        apellido: d.apellidos || ""
                     }))
                 );
 
@@ -173,7 +178,7 @@ const AddCitaModal: React.FC = () => {
 
     return (
         <div>
-            <Button variant="contained" onClick={handleOpen}>Registrar nueva Cita</Button>
+            
             <Modal open={open} onClose={handleClose} closeAfterTransition slots={{ backdrop: Backdrop }} slotProps={{ backdrop: { timeout: 500 } }}>
                 <Fade in={open}>
                     <Box sx={style}>

@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Cita } from "../types/Citas";
 import dayjs from "dayjs";
+
 import AddCitaModal from "./PopUps/AddCita";
 
 export default function TablaCitas() {
@@ -24,6 +25,10 @@ export default function TablaCitas() {
     const [citas, setCitas] = useState<Cita[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [busqueda, setBusqueda] = useState("");
+    const [modalAbierto, setModalAbierto] = useState(false);
+    const abrirModal = () => setModalAbierto(true);
+    const cerrarModal = () => setModalAbierto(false);
+
 
     useEffect(() => {
         const getCitas = async () => {
@@ -61,9 +66,11 @@ export default function TablaCitas() {
                     paciente: {
                         usuario_id: item.paciente?.usuario_id,
                         nombre: item.paciente?.nombre ?? null,
+                        apellidos: item.paciente?.apellidos ?? '',
                         email: item.paciente?.email ?? '',
                         rol: item.paciente?.rol_id,
                     },
+
                     dentista: {
                         usuario_id: item.dentista?.usuario_id,
                         nombre: item.dentista?.nombre ?? null,
@@ -87,44 +94,48 @@ export default function TablaCitas() {
         `${cita.paciente.nombre} ${cita.estado}`.toLowerCase().includes(busqueda.toLowerCase())
     );
 
-    return (
-        <Box>
-            <Box className="flex flex-row justify-between my-5 gap-4">
-                <TextField
-                    label="Buscar Cita"
-                    variant="outlined"
-                    value={busqueda}
-                    onChange={(e) => setBusqueda(e.target.value)}
-                    className="w-128"
-                />
-                <AddCitaModal />
-            </Box>
+    console.log("Citas filtradas:", citas);
 
-            {error ? (
-                <Typography className="text-red-600 bg-red-100 p-3 rounded-md">
-                    {error}
-                </Typography>
-            ) : (
-                <TableContainer component={Paper}>
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>ID</TableCell>
-                                <TableCell>Nombre del Paciente</TableCell>
-                                <TableCell>Nombre del dentista</TableCell>
-                                <TableCell>Fecha</TableCell>
-                                <TableCell>Hora</TableCell>
-                                <TableCell>Estado</TableCell>
-                                <TableCell>Acciones</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {citasFiltradas.filter((cita) => cita.paciente?.rol === 3).map((cita) => (
+    return (
+        <>
+            <Box>
+                <Box className="flex flex-row justify-between my-5 gap-4">
+                    <TextField
+                        label="Buscar Cita"
+                        variant="outlined"
+                        value={busqueda}
+                        onChange={(e) => setBusqueda(e.target.value)}
+                        className="w-128"
+                    />
+
+                    <Button variant="contained" onClick={abrirModal}>Registrar Nueva Cita</Button>
+
+                </Box>
+
+                {error ? (
+                    <Typography className="text-red-600 bg-red-100 p-3 rounded-md">
+                        {error}
+                    </Typography>
+                ) : (
+                    <TableContainer component={Paper}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Nombre del Paciente</TableCell>
+                                    <TableCell>Nombre del dentista</TableCell>
+                                    <TableCell>Fecha</TableCell>
+                                    <TableCell>Hora</TableCell>
+                                    <TableCell>Estado</TableCell>
+                                    <TableCell>Acciones</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {citasFiltradas.filter((cita) => cita.paciente?.rol === 3).map((cita) => (
                                     <TableRow key={cita.id}>
-                                        <TableCell>{cita.id}</TableCell>
                                         <TableCell>
-                                            {cita.paciente?.nombre ?? cita.paciente?.email ?? 'Sin nombre'}
+                                            {`${cita.paciente?.nombre ?? ''} ${cita.paciente?.apellidos ?? ''}`.trim() || cita.paciente?.email || 'Sin nombre'}
                                         </TableCell>
+
                                         <TableCell>
                                             {cita.dentista?.nombre ?? cita.dentista?.email ?? 'Sin nombre'}
                                         </TableCell>
@@ -144,10 +155,14 @@ export default function TablaCitas() {
                                         </TableCell>
                                     </TableRow>
                                 ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            )}
-        </Box>
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                )}
+            </Box>
+
+            <AddCitaModal open={modalAbierto} handleClose={cerrarModal} />
+
+        </>
     );
 }

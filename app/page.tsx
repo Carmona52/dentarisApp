@@ -7,7 +7,6 @@ import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { Box, Typography, } from '@mui/material';
 import dayjs from 'dayjs';
 
-import Pacientes from "./dataTest/data.json";
 import { Cita } from "./types/Citas";
 
 import MyCard from "./components/cards/CardCita"
@@ -133,7 +132,7 @@ export default function Home() {
             <Box display="flex" flexDirection="column" gap={3} >
                 <Box display="grid" gridTemplateColumns="1fr 1fr" gap={1} p={2} bgcolor="#fff" boxShadow={2}
                     borderRadius={2} className="h-72 w-72 text-center mx-auto">
-                    <Box textAlign="center" className="border-r border-gray-200">
+                    <Box textAlign="center" className="border-r border-gray-200" onClick={() => setFechaSeleccionada(dayjs())} sx={{ cursor: 'pointer' }}>
                         <Typography variant="h2" fontWeight="bold">{citasDeHoy.length}</Typography>
                         <Typography variant="h5">Citas Hoy</Typography>
                     </Box>
