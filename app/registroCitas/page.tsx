@@ -56,7 +56,7 @@ export default function TablaCitas() {
                 const citasTransformadas: Cita[] = citasDesdeApi.map((item: any) => ({
                     id: item.cita_id,
                     fecha: dayjs(item.fecha),
-                    hora: dayjs(`2000-01-01T${item.hora}`, 'HH:mm:ss'),
+                    hora: dayjs(`2000-01-01T${item.hora}`, 'YYYY-MM-DDTHH:mm:ss'),
                     estado: item.estado,
                     paciente: {
                         usuario_id: item.paciente?.usuario_id,
@@ -84,7 +84,7 @@ export default function TablaCitas() {
     }, []);
 
     const citasFiltradas = citas.filter((cita) =>
-        `${cita.id} ${cita.estado}`.toLowerCase().includes(busqueda.toLowerCase())
+        `${cita.paciente.nombre} ${cita.estado}`.toLowerCase().includes(busqueda.toLowerCase())
     );
 
     return (
