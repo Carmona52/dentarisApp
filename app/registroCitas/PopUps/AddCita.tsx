@@ -150,14 +150,14 @@ const AddCitaModal: React.FC = () => {
                 const data = await response.json();
                 const dentistasArray = Array.isArray(data) ? data : data.dentists || data;
 
-                setDentista(prev => [
-                    ...prev,
-                    ...dentistasArray.map(d => ({
+                setDentista(
+                    dentistasArray.map(d => ({
                         usuario_id: d.usuario_id,
                         nombre: d.nombre || "Sin nombre",
                         apellido: d.apellidos || d.apellido || ""
                     }))
-                ]);
+                );
+
 
                 console.log("Dentistas obtenidos:", dentista);
             } catch (err: any) {
@@ -166,13 +166,7 @@ const AddCitaModal: React.FC = () => {
             }
         };
 
-
-
-
-
-
         fetchDentistas()
-
         fetchData();
     }, []);
 
