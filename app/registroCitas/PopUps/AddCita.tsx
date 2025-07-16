@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Usuario } from '../types/DataType';
 
 
-interface openModalProps {    
+interface openModalProps {
     open: boolean;
     handleClose: () => void;
 }
@@ -31,7 +31,7 @@ const style = {
 
 
 
-const AddCitaModal: React.FC<openModalProps> = ({open, handleClose}) => {
+const AddCitaModal: React.FC<openModalProps> = ({ open, handleClose }) => {
 
     if (!open) return null;
 
@@ -120,7 +120,13 @@ const AddCitaModal: React.FC<openModalProps> = ({open, handleClose}) => {
                 const pacientesArray: Usuario[] = Array.isArray(data)
                     ? data
                     : data.pacientes || [];
-                setPaciente(pacientesArray);
+                setPaciente(
+                    pacientesArray.map(p => ({
+                        usuario_id: p.usuario_id,
+                        nombre: p.nombre || "Sin nombre",
+                        apellidos: p.apellidos || p.apellidos || "",
+                    }))
+                );
             } catch (err) {
                 console.error('Error de red:', err);
                 setError('No se pudo conectar con el servidor.');
@@ -178,7 +184,7 @@ const AddCitaModal: React.FC<openModalProps> = ({open, handleClose}) => {
 
     return (
         <div>
-            
+
             <Modal open={open} onClose={handleClose} closeAfterTransition slots={{ backdrop: Backdrop }} slotProps={{ backdrop: { timeout: 500 } }}>
                 <Fade in={open}>
                     <Box sx={style}>
@@ -197,7 +203,8 @@ const AddCitaModal: React.FC<openModalProps> = ({open, handleClose}) => {
                                 onChange={handleChange}>
                                 {paciente.map((p) => (
                                     <MenuItem key={p.usuario_id} value={p.usuario_id}>
-                                        {p.nombre}
+                                        {p.nombre} {p.apellidos || ''}
+
                                     </MenuItem>
                                 ))}
                             </TextField>

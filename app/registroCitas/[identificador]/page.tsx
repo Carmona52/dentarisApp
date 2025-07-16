@@ -83,7 +83,7 @@ const DetalleCitaPage = () => {
 
     const handleVerHistorial = () => {
         if (cita?.paciente?.usuario_id) {
-            router.push(`/historial/${cita.paciente.usuario_id}`);
+            router.push(`/pacientes/HistorialMedico/${cita.paciente.usuario_id}`);
         }
     };
 

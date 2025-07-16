@@ -98,7 +98,7 @@ const MyCard: React.FC<MyCardProps> = ({ cita }) => {
                     </IconCircle>
                     <Box>
                         <Typography variant="h6" fontWeight="bold" color="text.primary">
-                            {cita.paciente.nombre}
+                            {cita.paciente.nombre} {cita.paciente.apellidos}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
                             Limpieza Dental
