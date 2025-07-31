@@ -105,9 +105,12 @@ export default function Home() {
                     />
 
                 </LocalizationProvider>
-                <Typography variant="h4" sx={{ fontWeight: "semi-bold", marginY: 5 }} className="text-center">
+                {fechaSeleccionada.format('YYYY-MM-DD') !== hoy ? <Typography variant="h4" sx={{ fontWeight: "semi-bold", marginY: 5 }} className="text-center">
                     Citas programadas para el día {fechaSeleccionada.format('DD/MM/YYYY')}
-                </Typography>
+                </Typography>:<Typography variant="h4" sx={{ fontWeight: "semi-bold", marginY: 5 }} className="text-center">
+                    Citas programadas para el día de Hoy
+                </Typography>}
+                
 
 
                 <Box
