@@ -1,8 +1,9 @@
 'use client'
 
-import {Alert, Box, Button, FormLabel, TextField, Typography} from '@mui/material';
-import {useRouter} from 'next/navigation';
-import {useState} from "react";
+import { Alert, Box, Button, FormLabel, TextField, Typography } from '@mui/material';
+import { useRouter } from 'next/navigation';
+import { useState } from "react";
+import { register } from "@/app/lib/db/auth";
 
 export default function Register() {
 
@@ -12,55 +13,61 @@ export default function Register() {
     const [password, setPassword] = useState('')
     const [phone, setPhone] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
-    const [error, setError] = useState('')
-    const rol = "Administrador"
+    const [alert, setAlert] = useState<{ severity: 'success' | 'error'; message: string } | null>(null);
 
     const validateEmail = (email: string): boolean => {
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         return regex.test(email)
     }
 
-    const handleRegister = (e: React.FormEvent) => {
+    const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault()
-        setError('')
+        setAlert({ severity: 'error', message: '' })
+
 
         if (!validateEmail(email)) {
-            setError("Correo no válido")
+            setAlert({ severity: 'error', message: 'Correo no válido' })
             return
         }
 
         if (password.length < 8) {
-            setError("La contraseña debe tener 8 carácteres")
+            setAlert({ severity: 'error', message: 'La Contraseña debe ser almenos de 8 Caracteres' })
             return;
         } else if (password != confirmPassword) {
-            setError("Las contraseñas no coinciden")
+            setAlert({ severity: 'error', message: 'Las contraseñas no coinciden' })
             return;
         }
 
-
-        fetch("http://localhost:3001/api/auth/register", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                clinica: name,
+        try {
+            const response = await register({
+                clinica_name: name,
                 telefono: phone,
                 email: email,
                 password: password,
-                rol: rol
-            })
-        })
-            .then(res => res.json())
-            .catch(err => {
-                console.error("Error de red:", err);
-            })
-            .then((response) => {
-                if (response.success === true) {
-                    <Alert severity="success">Inicio de Sesión correcto</Alert>
-                    setTimeout(() => router.push("/login"), 1500)
-                }
-            })
+                rol: "Administrador"
+            });
+
+            if (response.success) {
+                setAlert({
+                    severity: "success",
+                    message: "Registro exitoso"
+                });
+
+                setTimeout(() => {
+                    router.push("/auth/login");
+                }, 2000);
+            } else {
+                setAlert({
+                    severity: "error",
+                    message: `Error al registrar: ${response.message}`
+                });
+            }
+        } catch (error) {
+            setAlert({ severity: 'error', message: 'Error al registrar' });
+
+        }
+
+
 
     }
 
@@ -70,10 +77,10 @@ export default function Register() {
                 <img
                     src="/branding/LogoBackRec.png"
                     alt="Logo Dentaris"
-                    className="w-120 mb-2"/>
+                    className="w-120 mb-2" />
 
                 <Box className="text-center mb-6 -mt-10">
-                    <Typography variant="h3" sx={{fontWeight: 'semi-bold', color: 'bold'}}>
+                    <Typography variant="h3" sx={{ fontWeight: 'semi-bold', color: 'bold' }}>
                         Crear una cuenta
                     </Typography>
                     <Typography variant="body2" className="text-gray-600">
@@ -85,57 +92,64 @@ export default function Register() {
                     <div>
                         <FormLabel>Ingrese el Nombre de su clínica <span className="text-red-500">*</span></FormLabel>
                         <TextField fullWidth
-                                   value={name}
-                                   onChange={(e) => setName(e.target.value)}
-                                   variant="outlined"
-                                   placeholder="Mi clinica"
-                                   className="bg-white"/>
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            variant="outlined"
+                            placeholder="Mi clinica"
+                            className="bg-white" />
                     </div>
                     <div>
                         <FormLabel className="text-gray-700">Correo <span className="text-red-500">*</span></FormLabel>
                         <TextField fullWidth
-                                   value={email}
-                                   onChange={(e) => setEmail(e.target.value)}
-                                   variant="outlined"
-                                   placeholder="Correo"
-                                   className="bg-white"/>
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            variant="outlined"
+                            placeholder="Correo"
+                            className="bg-white" />
                     </div>
                     <div>
                         <FormLabel className="text-gray-700">Número de teléfono <span className="text-red-500">*</span></FormLabel>
                         <TextField fullWidth
-                                   value={phone}
-                                   onChange={(e) => setPhone(e.target.value)}
-                                   type="number"
-                                   variant="outlined"
-                                   placeholder="1234567890"
-                                   className="bg-white"/>
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            type="number"
+                            variant="outlined"
+                            placeholder="1234567890"
+                            className="bg-white" />
                     </div>
 
                     <div>
                         <FormLabel className="text-gray-700">Contraseña <span
                             className="text-red-500">*</span></FormLabel>
                         <TextField fullWidth
-                                   value={password}
-                                   onChange={(e) => setPassword(e.target.value)}
-                                   type="password"
-                                   variant="outlined"
-                                   placeholder="Contraseña"
-                                   className="bg-white"/>
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            type="password"
+                            variant="outlined"
+                            placeholder="Contraseña"
+                            className="bg-white" />
                     </div>
 
                     <div>
                         <FormLabel className="text-gray-700">Confirmar contraseña<span className="text-red-500">*</span></FormLabel>
                         <TextField fullWidth
-                                   value={confirmPassword}
-                                   onChange={(e) => setConfirmPassword(e.target.value)}
-                                   type="password"
-                                   variant="outlined"
-                                   placeholder="Confirmar Contraseña"
-                                   className="bg-white"/>
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            type="password"
+                            variant="outlined"
+                            placeholder="Confirmar Contraseña"
+                            className="bg-white" />
                     </div>
 
 
-                    {error && <Typography variant="body2" className="text-red-600">{error}</Typography>}
+
+                    {alert && (
+                        <Alert severity={alert.severity} sx={{ mt: 2 }}>
+                            {alert.message}
+                        </Alert>
+                    )}
+
+
 
                     <Button
                         type="submit"
@@ -148,7 +162,7 @@ export default function Register() {
                 <Box className="w-full border-t border-gray-300 my-6 flex flex-row items-center justify-center">
 
 
-                    <Typography variant="body2" className="mt-4 text-gray-600" onClick={() => router.push('auth/login')}>
+                    <Typography variant="body2" className="mt-4 text-gray-600" onClick={() => router.push('/auth/login')}>
                         ¿Ya tienes Cuenta?{' '}
                         <span className="text-blue-600 hover:underline cursor-pointer">¡Inicia Sesión!</span>
                     </Typography>
@@ -157,13 +171,16 @@ export default function Register() {
             </Box>
 
             <Box className="basis-2/3 flex items-center justify-center">
-                <Box sx={{display: 'flex',}}>
+                <Box sx={{ display: 'flex', }}>
                     <img
                         src="/loginIMG.jpg"
-                        alt="Imagen de login"/>
+                        alt="Imagen de login" />
                 </Box>
 
             </Box>
         </Box>
+
+
+
     );
 }

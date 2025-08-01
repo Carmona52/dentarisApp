@@ -1,7 +1,8 @@
-import {usuario} from "@/app/lib/db/types";
-import { hrHR } from "@mui/x-date-pickers/locales";
+import { clinica } from "@/app/lib/db/types";
 import dayjs from "dayjs";
+
 const api_URL = "http://localhost:3001/api/auth/login";
+const api_Register_URL = "http://localhost:3001/api/auth/register";
 
 let errorMessage = "Error al iniciar sesión";
 
@@ -42,3 +43,32 @@ export const logout = () => {
     window.location.href = '/login';
 }
 
+
+export const register = async (Clinica:clinica) => {
+    return fetch(api_Register_URL, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            clinica: Clinica.clinica_name,
+            telefono: Clinica.telefono,
+            email: Clinica.email,
+            password: Clinica.password,
+            rol: Clinica.rol,
+        }),
+    })
+    .then((res) => res.json())
+    .catch((error) => {
+        errorMessage = "Error al registrar: " + error.message;
+        throw error;
+    })
+    .then((response) => {
+        if (response.success === true) {
+            return response;
+        } else {
+            errorMessage = "Error al registrar: " + response.message;
+            throw new Error(errorMessage);
+        }
+    });
+}

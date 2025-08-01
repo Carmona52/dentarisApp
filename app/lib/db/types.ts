@@ -21,6 +21,14 @@ interface usuario{
     last_login: dayjs.Dayjs | Date;
 }
 
+interface clinica {
+    clinica_name: string;
+    telefono: string;
+    email: string;
+    password: string;
+    rol: string;
+}
+
 interface dentista {
     carrera: string;
     cedula_profesional: string;
@@ -29,4 +37,5 @@ interface dentista {
 
 export type {usuario};
 export type {dentista};
+export type {clinica};
 
