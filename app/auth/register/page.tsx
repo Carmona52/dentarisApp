@@ -148,7 +148,7 @@ export default function Register() {
                 <Box className="w-full border-t border-gray-300 my-6 flex flex-row items-center justify-center">
 
 
-                    <Typography variant="body2" className="mt-4 text-gray-600" onClick={() => router.push('/login')}>
+                    <Typography variant="body2" className="mt-4 text-gray-600" onClick={() => router.push('auth/login')}>
                         ¿Ya tienes Cuenta?{' '}
                         <span className="text-blue-600 hover:underline cursor-pointer">¡Inicia Sesión!</span>
                     </Typography>

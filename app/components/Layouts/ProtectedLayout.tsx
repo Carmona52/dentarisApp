@@ -9,15 +9,12 @@ import SideBar from "@/app/components/NavBars/SideBar";
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
     const pathname = usePathname();
-    const excludedRoutes = ["/login", "/register"];
-    const isExcluded = excludedRoutes.includes(pathname);
+    const isExcluded = pathname.startsWith("/auth");
 
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token && !isExcluded) {
-            router.push("/login");
-        }else{
-
+            router.push("/auth/login");
         }
     }, [pathname]);
 
