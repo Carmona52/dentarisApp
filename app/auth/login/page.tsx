@@ -4,6 +4,8 @@ import { Box, Button, FormLabel, TextField, Typography } from '@mui/material'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
+import { login } from '@/app/lib/db/auth'
+
 export default function Login() {
     const router = useRouter()
     const [email, setEmail] = useState('')
@@ -29,30 +31,16 @@ export default function Login() {
             return
         }
 
-        fetch("http://localhost:3001/api/auth/login", {
-            method: "POST",
-            body: JSON.stringify({
-                email: email,
-                password: password,
-            }),
-            headers: {
-                "Content-Type": "application/json",
-            },
-        })
-            .then((res) => res.json())
-            .catch((error) => console.error("Error:", error))
-            .then((response) => {
-                if (response.success === true) {
-                    router.push('/')
-                    localStorage.setItem('token', response.token)
-                    localStorage.setItem('userId', response.userId)
-
-                    console.log("Success:", response)
-                } else {
-                    setError("Contraseña o Correo Equivocado")
-                }
-            });
-
+        try {
+            const response = await login(email, password)
+            if (response.success) {
+                router.push('/')
+            } else {
+                setError(error || 'Error al iniciar sesión')
+            }
+        } catch (err) {
+            setError('Error al iniciar sesión: ' + (err as Error).message)
+        }
 
 
     }
@@ -113,7 +101,7 @@ export default function Login() {
                 <Box className="w-full border-t border-gray-300 my-6" />
 
 
-                <Typography variant="body1" className="mt-4 text-gray-600" onClick={() => router.push('/register')}>
+                <Typography variant="body1" className="mt-4 text-gray-600" onClick={() => router.push('/auth/register')}>
                     ¿No tienes una cuenta?{' '}
                     <span className="text-blue-600 hover:underline cursor-pointer">¡Regístrate!</span>
                 </Typography>

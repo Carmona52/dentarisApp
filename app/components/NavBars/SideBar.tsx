@@ -39,7 +39,7 @@ const NavigationSidebar: React.FC = () => {
 
     const cerrarSesion = () => {
         localStorage.clear();
-        router.push('/login');
+        router.push('/auth/login');
     }
 
     const section1: NavItem[] = [
