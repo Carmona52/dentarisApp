@@ -8,6 +8,7 @@ import {
     Button,
     Divider,
     CircularProgress,
+    Grid,
 } from '@mui/material';
 import dayjs from 'dayjs';
 import { Cita } from '../../types/Citas';
@@ -97,31 +98,44 @@ const DetalleCitaPage = () => {
     }
 
     return (
-        <Box sx={{ p: 4, minHeight: '100vh', display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <Typography variant="h4" sx={{ fontWeight: 600, color: '#0A447C' }}>
+        <Box sx={{ p: { xs: 3, md: 6 }, maxWidth: 1000, mx: 'auto' }}>
+            <Typography variant="h4" fontWeight={700} color="primary" gutterBottom>
                 Detalles de la Cita
             </Typography>
 
-            <Box sx={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                gap: 2,
-                backgroundColor: '#fff',
-                p: 3,
-                borderRadius: 2,
-                boxShadow: '0 0 6px rgba(0,0,0,0.08)',
-            }}>
-                <Typography><strong>ID Cita:</strong> {cita.id}</Typography>
-                <Typography><strong>Paciente:</strong> {cita.paciente?.nombre ?? cita.paciente?.email}</Typography>
-                <Typography><strong>Email Paciente:</strong> {cita.paciente?.email}</Typography>
-                <Typography><strong>Dentista:</strong> {cita.dentista?.nombre ?? 'Sin nombre'}</Typography>
-                <Typography><strong>Email Dentista:</strong> {cita.dentista?.email}</Typography>
-                <Typography><strong>Fecha:</strong> {cita.fecha.format('YYYY-MM-DD')}</Typography>
-                <Typography><strong>Hora:</strong> {cita.hora.format('hh:mm A')}</Typography>
-                <Typography><strong>Estado:</strong> {cita.estado}</Typography>
-            </Box>
+            <Divider sx={{ my: 3 }} />
 
-            <Divider />
+            <Grid container spacing={3}>
+                <Grid item xs={12} sm={6}>
+                    <Typography variant="subtitle2"><strong>ID Cita:</strong></Typography>
+                    <Typography variant="body1" sx={{ mb: 2 }}>{cita.id}</Typography>
+
+                    <Typography variant="subtitle2"><strong>Paciente:</strong></Typography>
+                    <Typography variant="body1" sx={{ mb: 2 }}>{cita.paciente?.nombre ?? cita.paciente?.email}</Typography>
+
+                    <Typography variant="subtitle2"><strong>Email Paciente:</strong></Typography>
+                    <Typography variant="body1" sx={{ mb: 2 }}>{cita.paciente?.email}</Typography>
+
+                    <Typography variant="subtitle2"><strong>Fecha:</strong></Typography>
+                    <Typography variant="body1">{cita.fecha.format('YYYY-MM-DD')}</Typography>
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                    <Typography variant="subtitle2"><strong>Dentista:</strong></Typography>
+                    <Typography variant="body1" sx={{ mb: 2 }}>{cita.dentista?.nombre ?? 'Sin nombre'}</Typography>
+
+                    <Typography variant="subtitle2"><strong>Email Dentista:</strong></Typography>
+                    <Typography variant="body1" sx={{ mb: 2 }}>{cita.dentista?.email}</Typography>
+
+                    <Typography variant="subtitle2"><strong>Hora:</strong></Typography>
+                    <Typography variant="body1" sx={{ mb: 2 }}>{cita.hora.format('hh:mm A')}</Typography>
+
+                    <Typography variant="subtitle2"><strong>Estado:</strong></Typography>
+                    <Typography variant="body1">{cita.estado}</Typography>
+                </Grid>
+            </Grid>
+
+            <Divider sx={{ my: 4 }} />
 
             <Box
                 sx={{
@@ -129,44 +143,39 @@ const DetalleCitaPage = () => {
                     flexWrap: 'wrap',
                     gap: 2,
                     justifyContent: 'center',
-                    maxWidth: 700,
-                    mx: 'auto',
                 }}
             >
                 <Button
+                    variant="outlined"
+                    color="error"
                     onClick={handleEliminar}
-                    sx={{
-                        backgroundColor: "white", color: "gray", p: 2, px: 5,
-                        '&:hover': {
-                            bgcolor: '#d32f2f',
-                            color: '#fff',
-                        },
-                    }}
+                    sx={{ px: 4 }}
                 >
-                    <Typography variant="body2">Eliminar Cita</Typography>
+                    Eliminar Cita
                 </Button>
 
                 <Button
                     variant="contained"
                     color="secondary"
-                    sx={{ px: 4 }}
                     onClick={handleVerHistorial}
+                    sx={{ px: 4 }}
                 >
                     Ver Historial Médico
                 </Button>
 
                 <Button
                     variant="contained"
-                    sx={{ px: 4 }}
+                    color="primary"
                     onClick={() => setEditModalOpen(true)}
+                    sx={{ px: 4 }}
                 >
                     Editar Cita
                 </Button>
 
                 <Button
-                    variant="contained"
-                    sx={{ px: 4 }}
+                    variant="outlined"
                     onClick={() => router.push('/registroCitas')}
+                    sx={{ px: 4 }}
                 >
                     Volver
                 </Button>

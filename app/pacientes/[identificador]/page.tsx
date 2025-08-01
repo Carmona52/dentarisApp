@@ -150,6 +150,9 @@ export default function ConsultaForm() {
         { label: 'Otro', value: 'O' }
     ];
 
+     const handleVerHistorial = () => {
+            router.push(`/pacientes/HistorialMedico/${id}`);
+    };
       
 
 
@@ -245,6 +248,7 @@ export default function ConsultaForm() {
                                     Eliminar Paciente
                                 </Typography>
                             </Button>
+
 
                             <Button onClick={()=>{router.push("/pacientes")}} sx={{
                                 backgroundColor: "#d32f2f", color: "white", p: 2, px: 10,
