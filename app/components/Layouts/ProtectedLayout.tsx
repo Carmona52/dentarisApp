@@ -3,20 +3,42 @@
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Box } from "@mui/material";
+import dayjs from "dayjs";
 import NavBar from "@/app/components/NavBars/Navbar";
 import SideBar from "@/app/components/NavBars/SideBar";
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
+
+    const token = localStorage.getItem("token");
+    const lastLogin = localStorage.getItem("lastLogin");
+
     const router = useRouter();
     const pathname = usePathname();
     const isExcluded = pathname.startsWith("/auth");
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
+        let lastLoginTime = dayjs().hour(0).minute(0).second(0);
+
+        if (lastLogin) {
+            const [hour, minute] = lastLogin.split(":").map(Number);
+            lastLoginTime = lastLoginTime.hour(hour).minute(minute);
+        }
+
+        const hoursPassed = dayjs().diff(lastLoginTime, 'hour');
+        const deleteToken = hoursPassed >= 8;
+
+        if (deleteToken) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("userId");
+            localStorage.removeItem("lastLogin");
+            router.push("/auth/login");
+        }
+       
         if (!token && !isExcluded) {
             router.push("/auth/login");
         }
-    }, [pathname]);
+
+    }, [token,isExcluded,pathname]);
 
     if (isExcluded) return children;
 
