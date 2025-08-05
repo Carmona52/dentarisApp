@@ -106,7 +106,7 @@ const DetalleCitaPage = () => {
             <Divider sx={{ my: 3 }} />
 
             <Grid container spacing={3}>
-                <Grid item xs={12} sm={6}>
+                <Grid >
                     <Typography variant="subtitle2"><strong>ID Cita:</strong></Typography>
                     <Typography variant="body1" sx={{ mb: 2 }}>{cita.id}</Typography>
 
@@ -120,7 +120,7 @@ const DetalleCitaPage = () => {
                     <Typography variant="body1">{cita.fecha.format('YYYY-MM-DD')}</Typography>
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid >
                     <Typography variant="subtitle2"><strong>Dentista:</strong></Typography>
                     <Typography variant="body1" sx={{ mb: 2 }}>{cita.dentista?.nombre ?? 'Sin nombre'}</Typography>
 

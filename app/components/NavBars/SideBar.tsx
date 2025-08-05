@@ -9,21 +9,20 @@ import {
     ListItemText,
     Divider,
     Button,
-    Typography
+    Typography,
 } from '@mui/material';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import EventNoteIcon from '@mui/icons-material/EventNote';
-import PeopleIcon from '@mui/icons-material/People';
-import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import SettingsIcon from '@mui/icons-material/Settings';
-import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle';
+import {
+    Dashboard as DashboardIcon,
+    EventNote as EventNoteIcon,
+    People as PeopleIcon,
+    LocalHospital as LocalHospitalIcon,
+    AccountCircle as AccountCircleIcon,
+    Settings as SettingsIcon,
+    ExitToApp as ExitToAppIcon,
+    HelpOutline as HelpOutlineIcon,
+    SupervisedUserCircle as SupervisedUserCircleIcon,
+} from '@mui/icons-material';
 import { useRouter, usePathname } from 'next/navigation';
-
-
-
 
 interface NavItem {
     text: string;
@@ -31,16 +30,14 @@ interface NavItem {
     path: string;
 }
 
-
 const NavigationSidebar: React.FC = () => {
     const router = useRouter();
     const pathname = usePathname();
 
-
     const cerrarSesion = () => {
         localStorage.clear();
         router.push('/auth/login');
-    }
+    };
 
     const section1: NavItem[] = [
         { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
@@ -58,7 +55,6 @@ const NavigationSidebar: React.FC = () => {
         { text: 'Ajustes', icon: <SettingsIcon />, path: '/ajustes' },
         { text: 'Cerrar Sesión', icon: <ExitToAppIcon />, path: 'logout' },
     ];
-
 
     const renderSection = (items: NavItem[]) => (
         <List>
@@ -104,18 +100,36 @@ const NavigationSidebar: React.FC = () => {
     );
 
     return (
-        <Box sx={{
+        <Box
+            sx={{
                 width: 250,
+                height: '100vh',
                 display: 'flex',
                 flexDirection: 'column',
-                justifyContent: 'space-between',
-                height: '100%',
-                borderRadius: 4,
-                p: 2,
-                boxShadow: 3,
-            }} className="border-2 border-gray-200 m-2">
-
-            <Box>
+                bgcolor: 'white',
+                borderRight: '1px solid #E0E0E0',
+                px: 1,
+            }}>
+            {/* Contenido scrollable */}
+            <Box
+                sx={{
+                    flexGrow: 1,
+                    p: 2,
+                    pr: 1,
+                    '&::-webkit-scrollbar': {
+                        width: '8px',
+                    },
+                    '&::-webkit-scrollbar-track': {
+                        backgroundColor: '#f0f0f0',
+                        borderRadius: '8px',
+                    },
+                    '&::-webkit-scrollbar-thumb': {
+                        backgroundColor: '#b0bec5',
+                        borderRadius: '8px',
+                    },
+                   
+                }}
+            >
                 {renderSection(section1)}
                 <Divider sx={{ my: 1 }} />
                 {renderSection(section2)}
@@ -123,22 +137,23 @@ const NavigationSidebar: React.FC = () => {
                 {renderSection(section3)}
             </Box>
 
-
+            {/* Ayuda (posición fija al fondo) */}
             <Box
                 sx={{
                     bgcolor: '#E6F6FD',
-                    borderRadius: 3,
+                    borderRadius: 2,
                     textAlign: 'center',
                     p: 2,
-                    mt: 2,
+                    m: 2,
                     boxShadow: 1,
+                    flexShrink: 0,
                 }}
             >
                 <HelpOutlineIcon sx={{ color: '#2F4858', fontSize: 28 }} />
                 <Typography variant="body1" fontWeight="bold" mt={1}>
                     ¿Necesitas Ayuda?
                 </Typography>
-                <Typography variant="body2" color="text.secondary" mt={0.5}>
+                <Typography variant="body2" color="text.secondary">
                     Contáctanos para brindártela
                 </Typography>
                 <Button
