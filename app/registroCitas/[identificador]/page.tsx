@@ -11,7 +11,9 @@ import {
     Grid,
 } from '@mui/material';
 import dayjs from 'dayjs';
-import { Cita } from '../../types/Citas';
+import { updateEstadoCita } from '@/app/lib/db/citas/citas';
+import { Cita } from '../../lib/db/citas/types';
+import { getCitaDetalle } from '@/app/lib/db/citas/citas';
 import EditCitaModal from '../PopUps/EditCita';
 
 const DetalleCitaPage = () => {
@@ -26,38 +28,22 @@ const DetalleCitaPage = () => {
         : params.identificador
     );
 
-    const fetchCita = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`http://localhost:3002/api/citas/${id}/detalle`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-
-            const json = await res.json();
-            if (!json.success || !json.data) throw new Error('Respuesta inválida del servidor');
-
-            const data = json.data;
-            const fechaCompleta = dayjs(`${data.fecha}T${data.hora}`, 'YYYY-MM-DDTHH:mm');
-
-            setCita({
-                id: data.cita_id,
-                fecha: fechaCompleta,
-                hora:fechaCompleta,
-                estado: data.estado,
-                paciente: data.paciente,
-                dentista: data.dentista,
-            });
-        } catch (err) {
-            console.error(err);
-            alert('Error al cargar la cita');
-        } finally {
-            setLoading(false);
-        }
-    };
-
     useEffect(() => {
-        if (id) fetchCita();
+        const fetchCita = async () => {
+            try {
+                const citaData = await getCitaDetalle(id);
+                setCita(citaData);
+            } catch (err) {
+                console.error(err);
+                alert('Error al cargar la cita');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        id ? fetchCita() : setLoading(false);
     }, [id]);
+
 
     const handleEliminar = async () => {
         if (!window.confirm('¿Seguro que deseas eliminar esta cita?')) return;
@@ -88,6 +74,27 @@ const DetalleCitaPage = () => {
             router.push(`/pacientes/HistorialMedico/${cita.paciente.usuario_id}`);
         }
     };
+
+    const handleTerminarCita = async () => {
+        const confirmar = window.confirm('¿Seguro que desea terminar con la cita?');
+        if (!confirmar || !cita) return;
+
+        try {
+            await updateEstadoCita(cita.id, {
+                fecha: cita.fecha,
+                hora: dayjs(cita.hora).format('HH:mm'),
+                motivo: cita.motivo,
+                estado: 'Realizada',
+            });
+
+            alert('La cita ha sido marcada como realizada.');
+            router.push('/registroCitas');
+        } catch (err: any) {
+            console.error(err);
+            alert(err.message || 'Error al actualizar la cita');
+        }
+    };
+
 
     if (loading || !cita) {
         return (
@@ -136,7 +143,10 @@ const DetalleCitaPage = () => {
                     <Typography variant="body1" sx={{ mb: 2 }}>{cita.motivo ?? 'No especificado'}</Typography>
 
                     <Typography variant="subtitle2"><strong>Hora:</strong></Typography>
-                    <Typography variant="body1" sx={{ mb: 2 }}>{cita.hora.format('hh:mm')}</Typography>
+                    <Typography variant="body1" sx={{ mb: 2 }}>
+                        {cita.hora.format('HH:mm')}
+                    </Typography>
+
 
 
                 </Grid>
@@ -145,8 +155,8 @@ const DetalleCitaPage = () => {
             <Typography variant="subtitle2" className='text-center'><strong>Estado:</strong></Typography>
             <Typography variant="body1" style={{
                 textTransform: 'capitalize',
-                color: cita.estado === 'Agendada' ? '#2e7d32' : '#b26a00',
-                backgroundColor: cita.estado === 'Agendada' ? '#e0f7e9' : '#ffff72',
+                color: cita.estado === 'Agendada' || 'Realizada'? '#2e7d32' : '#b26a00',
+                backgroundColor: cita.estado === 'Agendada' || 'Realizada' ? '#e0f7e9' : '#ffff72',
                 textAlign: 'center',
             }}>{cita.estado}</Typography>
 
@@ -189,11 +199,13 @@ const DetalleCitaPage = () => {
 
                 <Button
                     variant="outlined"
-                    onClick={() => router.push('/registroCitas')}
+                    onClick={handleTerminarCita}
                     sx={{ px: 4 }}
                 >
                     Volver
                 </Button>
+
+
             </Box>
 
             <EditCitaModal

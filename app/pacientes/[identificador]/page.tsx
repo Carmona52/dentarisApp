@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import dayjs from 'dayjs';
 import React, { useEffect, useState, useCallback } from 'react';
@@ -6,20 +6,14 @@ import {
     Box, Button, TextField, CircularProgress, Typography, MenuItem,
     Grid
 } from '@mui/material';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { Paciente } from '../../types/Pacientes';
-import { useRouter } from 'next/navigation'
-
-const parseAlergias = (alergias: string | null | undefined): string[] =>
-    alergias?.split(',').map(a => a.trim()).filter(Boolean) ?? [];
-
 
 const stringifyAlergias = (alergias: string[]): string =>
     alergias.join(',');
 
 export default function ConsultaForm() {
-     const router = useRouter();
- 
+    const router = useRouter();
     const params = useParams();
     const id = Number(Array.isArray(params.identificador) ? params.identificador[0] : params.identificador);
 
@@ -53,7 +47,8 @@ export default function ConsultaForm() {
                 } else {
                     setFormData({
                         ...paciente,
-                        alergias: parseAlergias(paciente.alergias)
+                        alergias: paciente.alergias ?? '',
+                        fecha_nacimiento: dayjs(paciente.fecha_nacimiento).format('YYYY-MM-DD'),
                     });
                 }
             } catch {
@@ -76,7 +71,7 @@ export default function ConsultaForm() {
     const handleAlergiasChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setFormData(prev =>
-            prev ? { ...prev, alergias: parseAlergias(value) } : prev
+            prev ? { ...prev, alergias: value } : prev
         );
     };
 
@@ -93,15 +88,17 @@ export default function ConsultaForm() {
                 },
                 body: JSON.stringify({
                     ...formData,
-                    alergias: stringifyAlergias(formData.alergias ?? []),
-                    fecha_de_nacimiento: dayjs(formData.fecha_nacimiento).format('YYYY-MM-DD')
+                    alergias: stringifyAlergias((formData.alergias as unknown as string)?.split(',').map(a => a.trim()).filter(Boolean)),
+                    fecha_de_nacimiento: formData.fecha_nacimiento,
                 }),
             });
 
             const { error } = await res.json();
             if (!res.ok) alert(`Error: ${error ?? 'No se pudo actualizar'}`);
-            else alert('Paciente actualizado correctamente'), 
-            setTimeout(() => {router.push('/pacientes'),1000});
+            else {
+                alert('Paciente actualizado correctamente');
+                setTimeout(() => router.push('/pacientes'), 1000);
+            }
         } catch {
             alert('Error de red al actualizar');
         }
@@ -121,8 +118,10 @@ export default function ConsultaForm() {
 
             const { error } = await res.json();
             if (!res.ok) alert(`Error: ${error ?? 'No se pudo eliminar'}`);
-            else alert('Paciente eliminado correctamente'), 
-            setTimeout(() => {router.push('/pacientes'),1000});
+            else {
+                alert('Paciente eliminado correctamente');
+                setTimeout(() => router.push('/pacientes'), 1000);
+            }
         } catch {
             alert('Error de red al eliminar');
         }
@@ -150,29 +149,36 @@ export default function ConsultaForm() {
         { label: 'Otro', value: 'O' }
     ];
 
-     const handleVerHistorial = () => {
-            router.push(`/pacientes/HistorialMedico/${id}`);
+    const handleVerHistorial = () => {
+        router.push(`/pacientes/HistorialMedico/${id}`);
     };
-      
-
 
     return (
-        
-        <>
-            <Grid container spacing={2} sx={{ mt: 2, mb: 2 }}>
+        <Box sx={{ p: 3 }}>
+            <Typography variant="h4" gutterBottom sx={{ textAlign: 'center', mb: 4 }}>
+                Editar Información del Paciente
+            </Typography>
+
+            <Grid container spacing={4}>
                 <Grid>
-                    <img
-                        src='/images/profile.png'
-                        alt="Foto del Paciente"
-                        style={{ width: '80%', height: 'auto', borderRadius: '8px' }}
-                    />
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <img
+                            src='/images/profile.png'
+                            alt="Foto del Paciente"
+                            style={{ width: '100%', borderRadius: '12px', maxWidth: '250px' }}
+                        />
+                        <Button
+                            variant="contained"
+                            sx={{ mt: 3, bgcolor: '#1e88e5', '&:hover': { bgcolor: '#1565c0' } }}
+                            fullWidth
+                            onClick={handleVerHistorial}
+                        >
+                            Ver Historial Médico
+                        </Button>
+                    </Box>
                 </Grid>
 
-                <Grid sx={{ width: '60%' }}>
-                    <Typography variant="h4" gutterBottom sx={{ textAlign: 'center', mt: 2 }}>
-                        Editar Paciente
-                    </Typography>
-
+                <Grid >
                     <Box display="flex" flexDirection="column" gap={2}>
                         <TextField
                             label="Nombre"
@@ -201,7 +207,7 @@ export default function ConsultaForm() {
                         <TextField
                             label="Fecha de Nacimiento"
                             type="date"
-                            value={dayjs(formData?.fecha_nacimiento).format('YYYY-MM-DD')}
+                            value={formData?.fecha_nacimiento || ''}
                             onChange={handleChange('fecha_nacimiento')}
                             fullWidth
                             InputLabelProps={{ shrink: true }}
@@ -209,7 +215,7 @@ export default function ConsultaForm() {
                         <TextField
                             select
                             name="genero"
-                            label="Seleccione el género"
+                            label="Género"
                             value={formData?.genero || ''}
                             required
                             fullWidth
@@ -222,10 +228,11 @@ export default function ConsultaForm() {
                             ))}
                         </TextField>
                         <TextField
-                            label="Alergias"
-                            value={formData?.alergias?.join(', ') || ''}
+                            label="Alergias (separadas por comas)"
+                            value={formData?.alergias || ''}
                             onChange={handleAlergiasChange}
                             fullWidth
+                            placeholder="Ej. Penicilina, Polen, Gluten"
                         />
                         <TextField
                             label="Notas"
@@ -235,50 +242,36 @@ export default function ConsultaForm() {
                             onChange={handleChange('notas')}
                             fullWidth
                         />
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', my: 3 }}>
+                    </Box>
 
-                            <Button onClick={handleDelete} sx={{
-                                backgroundColor: "white", color: "gray", p: 2, px: 10,
-                                '&:hover': {
-                                    bgcolor: '#d32f2f',
-                                    color: '#fff',
-                                }
-                            }} >
-                                <Typography variant="body2" component="h2">
-                                    Eliminar Paciente
-                                </Typography>
-                            </Button>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4, flexWrap: 'wrap', gap: 2 }}>
+                        <Button
+                            onClick={handleDelete}
+                            variant="outlined"
+                            color="error"
+                            sx={{ px: 6, py: 1.5 }}
+                        >
+                            Eliminar
+                        </Button>
 
+                        <Button
+                            onClick={() => router.push("/pacientes")}
+                            variant="outlined"
+                            sx={{ px: 6, py: 1.5 }}
+                        >
+                            Cancelar
+                        </Button>
 
-                            <Button onClick={()=>{router.push("/pacientes")}} sx={{
-                                backgroundColor: "#d32f2f", color: "white", p: 2, px: 10,
-                                '&:hover': {
-                                    bgcolor: '#d32f2f',
-                                    color: '#fff',
-                                }
-                            }} >
-                                <Typography variant="body2" component="h2">
-                                    Cancelar
-                                </Typography>
-                            </Button>
-
-                            <Button variant='outlined' onClick={handleSubmit} sx={{
-                                backgroundColor: "#0647A0", color: "white", p: 2, px: 10,
-                                '&:hover': {
-                                    bgcolor: '#0661D9',
-                                    color: '#fff',
-                                }
-                            }} >
-                                <Typography variant="body2" component="h2">
-                                    Guardar
-                                </Typography>
-                            </Button>
-
-                        </Box>
+                        <Button
+                            onClick={handleSubmit}
+                            variant="contained"
+                            sx={{ bgcolor: '#0647A0', color: 'white', px: 6, py: 1.5, '&:hover': { bgcolor: '#0661D9' } }}
+                        >
+                            Guardar
+                        </Button>
                     </Box>
                 </Grid>
             </Grid>
-
-        </>
+        </Box>
     );
 }

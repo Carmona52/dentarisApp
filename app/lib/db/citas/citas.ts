@@ -1,6 +1,7 @@
-const api_url = "localhost:3002/api/citas/";
-import dayjs from "dayjs";
+const api_url = "http://localhost:3002/api/citas/";
 
+
+import dayjs from "dayjs";
 
 import { updateCita } from "./types";
 import { Cita } from "./types";
@@ -59,24 +60,57 @@ export const fetchCitas = async (): Promise<Cita[]> => {
   return citasTransformadas;
 };
 
+export const getCitaDetalle = async (id: number): Promise<Cita> => {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('Token no disponible. Por favor, inicia sesión.');
+
+    const res = await fetch(`http://localhost:3002/api/citas/${id}/detalle`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const json = await res.json();
+    if (!json.success || !json.data) throw new Error('Respuesta inválida del servidor');
+
+    const data = json.data;
+    console.log('Cita Detalle:', data);
+    const fechaCompleta = dayjs(`${data.fecha}T${data.hora}`, 'YYYY-MM-DDTHH:mm:ss');
+
+
+    return {
+        id: data.cita_id,
+        fecha: fechaCompleta,
+  hora: fechaCompleta,
+        estado: data.estado,
+        paciente: data.paciente,
+        dentista: data.dentista,
+        motivo: data.motivo || 'No especificado',
+    };
+};
+
 export const updateEstadoCita = async (id: number, cita: updateCita): Promise<void> => {
   const token = localStorage.getItem("token");
   if (!token) {
     throw new Error("Token no disponible. Por favor, inicia sesión.");
   }
 
+  const payload = {
+    fecha: dayjs(cita.fecha).format("YYYY-MM-DD"),
+    hora:cita.hora,
+    motivo:cita.motivo,
+    estado: cita.estado,
+  };
+
   const response = await fetch(`${api_url}${id}`, {
-    method: 'PUT',
+    method: "PUT",
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify(cita)
+    body: JSON.stringify(payload),
   });
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    const message = errorData?.message || "Error al actualizar el estado de la cita";
-    throw new Error(message);
+    throw new Error(errorData.message || "Error al actualizar la cita");
   }
 };

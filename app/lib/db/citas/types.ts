@@ -18,10 +18,12 @@ interface Cita {
   motivo?: string;
 }
 
+
 interface updateCita {
     estado: string;
     fecha:dayjs.Dayjs;
-    hora: dayjs.Dayjs;
+    hora: String;
+    motivo?: string;
 }
 
 

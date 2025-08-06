@@ -11,7 +11,7 @@ import { Usuario } from '../types/DataType';
 interface openModalProps {
     open: boolean;
     handleClose: () => void;
-    onCitaCreated: () => void; 
+    onCitaCreated: () => void;
 }
 
 const style = {
@@ -29,6 +29,15 @@ const style = {
     p: 3,
 };
 
+const motivosConsulta = [
+    "Limpieza dental",
+    "Revisión general",
+    "Tratamiento de caries",
+    "Ortodoncia",
+    "Dolor o molestia",
+    "Otro"
+];
+
 const AddCitaModal: React.FC<openModalProps> = ({ open, handleClose, onCitaCreated }) => {
 
     const [pacientes, setPacientes] = useState<Usuario[]>([]);
@@ -39,13 +48,14 @@ const AddCitaModal: React.FC<openModalProps> = ({ open, handleClose, onCitaCreat
         dentista_id: '',
         fecha: '',
         hora: '',
+        motivo: ''
     });
 
     const [loading, setLoading] = useState(false);
 
-  
+
     useEffect(() => {
-        if (!open) return; 
+        if (!open) return;
 
         const fetchData = async () => {
             const token = localStorage.getItem('token');
@@ -55,7 +65,7 @@ const AddCitaModal: React.FC<openModalProps> = ({ open, handleClose, onCitaCreat
             }
 
             try {
-               
+
                 const resPacientes = await fetch('http://localhost:3001/api/auth/patients', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
@@ -63,7 +73,7 @@ const AddCitaModal: React.FC<openModalProps> = ({ open, handleClose, onCitaCreat
                 if (!resPacientes.ok) throw new Error(dataPacientes.message || 'Error al obtener pacientes');
                 setPacientes(Array.isArray(dataPacientes) ? dataPacientes : dataPacientes.pacientes || []);
 
-                // Obtener dentistas
+
                 const resDentistas = await fetch('http://localhost:3001/api/auth/dentists', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
@@ -79,7 +89,7 @@ const AddCitaModal: React.FC<openModalProps> = ({ open, handleClose, onCitaCreat
         };
 
         fetchData();
-    }, [open]); 
+    }, [open]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -88,7 +98,7 @@ const AddCitaModal: React.FC<openModalProps> = ({ open, handleClose, onCitaCreat
 
     const handleSubmit = async () => {
         setLoading(true);
-        const { paciente_id, dentista_id, fecha, hora } = formData;
+        const { paciente_id, dentista_id, fecha, hora, motivo } = formData;
         if (!paciente_id || !dentista_id || !fecha || !hora) {
             alert('Todos los campos son obligatorios.');
             setLoading(false);
@@ -115,16 +125,17 @@ const AddCitaModal: React.FC<openModalProps> = ({ open, handleClose, onCitaCreat
 
             if (!res.ok) throw new Error('Error al crear la cita');
 
-          
-            onCitaCreated(); 
-            
-  
+
+            onCitaCreated();
+
+
             handleClose();
             setFormData({
                 paciente_id: '',
                 dentista_id: '',
                 fecha: '',
                 hora: '',
+                motivo: ''
             });
             alert('Cita registrada correctamente');
 
@@ -149,41 +160,57 @@ const AddCitaModal: React.FC<openModalProps> = ({ open, handleClose, onCitaCreat
                                 <Typography color="error">{error}</Typography>
                             </Grid>
                         )}
-                        
-                            <TextField
-                                select
-                                name="paciente_id"
-                                label="Seleccione Paciente"
-                                value={formData.paciente_id}
-                                fullWidth
-                                required
-                                onChange={handleChange}
-                            >
-                                {pacientes.map((p) => (
-                                    <MenuItem key={p.usuario_id} value={p.usuario_id}>
-                                        {p.nombre} {p.apellidos || ''}
-                                    </MenuItem>
-                                ))}
-                            </TextField>
-                       
 
-                        
-                            <TextField
-                                select
-                                name="dentista_id"
-                                label="Seleccione Dentista"
-                                value={formData.dentista_id}
-                                fullWidth
-                                required
-                                onChange={handleChange}
-                            >
-                                {dentistas.map((d) => (
-                                    <MenuItem key={d.usuario_id} value={d.usuario_id}>
-                                        {d.nombre} {d.apellidos || ''}
-                                    </MenuItem>
-                                ))}
-                            </TextField>
-                        
+                        <TextField
+                            select
+                            name="paciente_id"
+                            label="Seleccione Paciente"
+                            value={formData.paciente_id}
+                            fullWidth
+                            required
+                            onChange={handleChange}
+                        >
+                            {pacientes.map((p) => (
+                                <MenuItem key={p.usuario_id} value={p.usuario_id}>
+                                    {p.nombre} {p.apellidos || ''}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+
+                        <TextField
+                            select
+                            name="motivo"
+                            label="Motivo de consulta"
+                            value={formData.motivo}
+                            fullWidth
+                            required
+                            onChange={handleChange}
+                        >
+                            {motivosConsulta.map((motivo) => (
+                                <MenuItem key={motivo} value={motivo}>
+                                    {motivo}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+
+
+
+                        <TextField
+                            select
+                            name="dentista_id"
+                            label="Seleccione Dentista"
+                            value={formData.dentista_id}
+                            fullWidth
+                            required
+                            onChange={handleChange}
+                        >
+                            {dentistas.map((d) => (
+                                <MenuItem key={d.usuario_id} value={d.usuario_id}>
+                                    {d.nombre} {d.apellidos || ''}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+
 
                         <Grid>
                             <TextField
@@ -206,8 +233,11 @@ const AddCitaModal: React.FC<openModalProps> = ({ open, handleClose, onCitaCreat
                                 required
                                 fullWidth
                                 InputLabelProps={{ shrink: true }}
+                                inputProps={{ min: '09:00', max: '17:00' }}
                                 onChange={handleChange}
+
                             />
+
                         </Grid>
                     </Grid>
 
