@@ -12,12 +12,12 @@ import {
     Paper,
     Typography,
     TextField,
+    TablePagination, 
 } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import AddPaciente from "./popUps/AddPaciente";
-import { Cita } from "../types/Citas";
-import {Paciente } from "../types/Pacientes"
+import { Paciente } from "../types/Pacientes"
 import dayjs from "dayjs";
 
 export default function TablaPacientes() {
@@ -26,49 +26,55 @@ export default function TablaPacientes() {
     const [error, setError] = useState<string | null>(null);
     const [busqueda, setBusqueda] = useState("");
 
-    useEffect(() => {
-        const getPacientes = async () => {
-            const token = localStorage.getItem("token");
 
-            if (!token) {
-                setError("Token no disponible. Por favor, inicie sesión.");
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+
+    const getPacientes = useCallback(async () => {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            setError("Token no disponible. Por favor, inicie sesión.");
+            return;
+        }
+
+        try {
+            const response = await fetch("http://localhost:3001/api/auth/patients", {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error("Error del servidor:", errorData);
+                setError(
+                    `Error ${response.status}: ${
+                        errorData.message || "No se pudo obtener pacientes."
+                    }`
+                );
                 return;
             }
 
-            try {
-                const response = await fetch("http://localhost:3001/api/auth/patients", {
-                    method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    console.error("Error del servidor:", errorData);
-                    setError(
-                        `Error ${response.status}: ${
-                            errorData.message || "No se pudo obtener pacientes."
-                        }`
-                    );
-                    return;
-                }
-
-                const data = await response.json();
-                const pacientesArray: Paciente[] = Array.isArray(data)
-                    ? data
-                    : data.pacientes || [];
-
-                setPacientes(pacientesArray);
-            } catch (err) {
-                console.error("Error de red:", err);
-                setError("No se pudo conectar con el servidor.");
-            }
-        };
-
-        getPacientes();
+            const data = await response.json();
+            const pacientesArray: Paciente[] = Array.isArray(data)
+                ? data
+                : data.pacientes || [];
+       
+            pacientesArray.sort((a, b) => (a.nombre ?? '').localeCompare(b.nombre ?? ''));
+            setPacientes(pacientesArray);
+            setError(null);
+        } catch (err) {
+            console.error("Error de red:", err);
+            setError("No se pudo conectar con el servidor.");
+        }
     }, []);
+
+    useEffect(() => {
+        getPacientes();
+    }, [getPacientes]);
 
     const formatGenero = (g: string) => {
         const map: Record<string, string> = {
@@ -80,8 +86,21 @@ export default function TablaPacientes() {
     };
 
     const pacientesFiltrados = pacientes.filter((p) =>
-        `${p.nombre} ${p.apellidos}`.toLowerCase().includes(busqueda.toLowerCase())
+        `${p.nombre} ${p.apellidos} ${p.email} ${p.telefono}`.toLowerCase().includes(busqueda.toLowerCase())
     );
+
+
+    const handleChangePage = (event: unknown, newPage: number) => {
+        setPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0); 
+    };
+
+    const pacientesPaginados = pacientesFiltrados.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+
 
     return (
         <Box>
@@ -93,7 +112,7 @@ export default function TablaPacientes() {
                     onChange={(e) => setBusqueda(e.target.value)}
                     className="w-128"
                 />
-                <AddPaciente />
+                <AddPaciente onPacienteAdded={getPacientes} />
             </Box>
 
             {error ? (
@@ -116,7 +135,7 @@ export default function TablaPacientes() {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {pacientesFiltrados.map((paciente) => (
+                            {pacientesPaginados.map((paciente) => (
                                 <TableRow key={paciente.usuario_id ?? `${paciente.nombre}-${Math.random()}`}>
                                     <TableCell>{paciente.nombre}</TableCell>
                                     <TableCell>{paciente.apellidos}</TableCell>
@@ -140,6 +159,16 @@ export default function TablaPacientes() {
                             ))}
                         </TableBody>
                     </Table>
+             
+                    <TablePagination
+                        rowsPerPageOptions={[5, 10, 25]}
+                        component="div"
+                        count={pacientesFiltrados.length}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        onPageChange={handleChangePage}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
+                    />
                 </TableContainer>
             )}
         </Box>

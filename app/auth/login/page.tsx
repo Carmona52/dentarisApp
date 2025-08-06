@@ -54,7 +54,7 @@ export default function Login() {
             <Box className="basis-1/3 flex flex-col items-center justify-center bg-white h-screen overflow-hidden p-6">
                 <img src="/branding/LogoBackRec.png" alt="Logo Dentaris" className="w-120 mb-2" />
                 <Box className="text-center mb-6">
-                    <Typography variant="h3" className="font-semibold text-gray-800">Bienvenido de Nuevo</Typography>
+                    <Typography variant="h4" className="font-semibold text-gray-800">Bienvenido de Nuevo</Typography>
                     <Typography variant="h6" className="text-gray-600 mt-5">Por favor, inicia sesión para
                         continuar</Typography>
                 </Box>

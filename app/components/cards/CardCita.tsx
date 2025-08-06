@@ -18,9 +18,12 @@ import {
     Close as CloseIcon,
 } from '@mui/icons-material';
 
-import { Cita } from '../../types/Citas';
+import { Cita } from '../../lib/db/citas/types';
 import { useRouter } from 'next/navigation';
 import EditCitaModal from '@/app/registroCitas/PopUps/EditCita';
+
+import { updateEstadoCita } from '@/app/lib/db/citas/citas';
+import dayjs from 'dayjs';
 
 interface MyCardProps {
     cita: Cita;
@@ -62,16 +65,33 @@ const MyCard: React.FC<MyCardProps> = ({ cita }) => {
     const router = useRouter();
     const [open, setOpen] = useState(false);
     const [modalAbierto, setModalAbierto] = useState(false);
+    const hora = cita.hora;
+
+
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
-    const abrirModal = () => setModalAbierto(true);
+    const abrirModal = () => setModalAbierto(true) ;
     const cerrarModal = () => setModalAbierto(false);
+    
 
-    const CitaStart = () => {
-        router.push(`/registroCitas/${cita.id}`);
-    };
+    const CitaStart = async () => {
+    const fechaFormateada = dayjs(cita.fecha).format("YYYY-MM-DD");
+    const horaFormateada = dayjs(hora).format("HH:mm");
+const horaParseada = dayjs(horaFormateada, "HH:mm");
+
+    
+
+ await updateEstadoCita(cita.id, {
+    fecha: dayjs(fechaFormateada),
+    hora: dayjs(hora).format("HH:mm"),
+    motivo: cita.motivo,
+    estado: "En proceso"
+});
+
+    router.push(`/registroCitas/${cita.id}`);
+};
 
     return (
         <>
@@ -130,7 +150,7 @@ const MyCard: React.FC<MyCardProps> = ({ cita }) => {
                 </Box>
             </Card>
 
- 
+
             <Modal
                 open={open}
                 onClose={handleClose}
@@ -184,7 +204,9 @@ const MyCard: React.FC<MyCardProps> = ({ cita }) => {
                         </Typography>
 
                         <Typography variant="body1" mb={1}><strong>Paciente:</strong> {cita.paciente.nombre} {cita.paciente.apellidos}</Typography>
-                        <Typography variant="body1" mb={1}><strong>Motivo:</strong> Limpieza Dental</Typography>
+                        <Typography variant="body1" mb={1}>
+                            <strong>Motivo:</strong> {cita.motivo?.trim() || 'No especificado'}
+                        </Typography>
                         <Typography variant="body1" mb={1}><strong>Fecha:</strong> {cita.fecha.format("DD-MM-YYYY")}</Typography>
                         <Typography variant="body1" mb={2}><strong>Hora:</strong> {cita.hora.format("hh:mm A")}</Typography>
 

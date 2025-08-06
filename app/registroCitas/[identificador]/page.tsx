@@ -11,7 +11,9 @@ import {
     Grid,
 } from '@mui/material';
 import dayjs from 'dayjs';
-import { Cita } from '../../types/Citas';
+import { updateEstadoCita } from '@/app/lib/db/citas/citas';
+import { Cita } from '../../lib/db/citas/types';
+import { getCitaDetalle } from '@/app/lib/db/citas/citas';
 import EditCitaModal from '../PopUps/EditCita';
 
 const DetalleCitaPage = () => {
@@ -26,37 +28,22 @@ const DetalleCitaPage = () => {
         : params.identificador
     );
 
-    const fetchCita = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`http://localhost:3002/api/citas/${id}/detalle`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-
-            const json = await res.json();
-            if (!json.success || !json.data) throw new Error('Respuesta inválida del servidor');
-
-            const data = json.data;
-
-            setCita({
-                id: data.cita_id,
-                fecha: dayjs(data.fecha),
-                hora: dayjs(`2000-01-01T${data.hora}`, 'HH:mm:ss'),
-                estado: data.estado,
-                paciente: data.paciente,
-                dentista: data.dentista,
-            });
-        } catch (err) {
-            console.error(err);
-            alert('Error al cargar la cita');
-        } finally {
-            setLoading(false);
-        }
-    };
-
     useEffect(() => {
-        if (id) fetchCita();
+        const fetchCita = async () => {
+            try {
+                const citaData = await getCitaDetalle(id);
+                setCita(citaData);
+            } catch (err) {
+                console.error(err);
+                alert('Error al cargar la cita');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        id ? fetchCita() : setLoading(false);
     }, [id]);
+
 
     const handleEliminar = async () => {
         if (!window.confirm('¿Seguro que deseas eliminar esta cita?')) return;
@@ -88,6 +75,27 @@ const DetalleCitaPage = () => {
         }
     };
 
+    const handleTerminarCita = async () => {
+        const confirmar = window.confirm('¿Seguro que desea terminar con la cita?');
+        if (!confirmar || !cita) return;
+
+        try {
+            await updateEstadoCita(cita.id, {
+                fecha: cita.fecha,
+                hora: dayjs(cita.hora).format('HH:mm'),
+                motivo: cita.motivo,
+                estado: 'Realizada',
+            });
+
+            alert('La cita ha sido marcada como realizada.');
+            router.push('/registroCitas');
+        } catch (err: any) {
+            console.error(err);
+            alert(err.message || 'Error al actualizar la cita');
+        }
+    };
+
+
     if (loading || !cita) {
         return (
             <Box sx={{ p: 4, textAlign: 'center' }}>
@@ -106,34 +114,51 @@ const DetalleCitaPage = () => {
             <Divider sx={{ my: 3 }} />
 
             <Grid container spacing={3}>
-                <Grid item xs={12} sm={6}>
+                <Grid >
                     <Typography variant="subtitle2"><strong>ID Cita:</strong></Typography>
                     <Typography variant="body1" sx={{ mb: 2 }}>{cita.id}</Typography>
 
                     <Typography variant="subtitle2"><strong>Paciente:</strong></Typography>
                     <Typography variant="body1" sx={{ mb: 2 }}>{cita.paciente?.nombre ?? cita.paciente?.email}</Typography>
 
-                    <Typography variant="subtitle2"><strong>Email Paciente:</strong></Typography>
-                    <Typography variant="body1" sx={{ mb: 2 }}>{cita.paciente?.email}</Typography>
+
 
                     <Typography variant="subtitle2"><strong>Fecha:</strong></Typography>
-                    <Typography variant="body1">{cita.fecha.format('YYYY-MM-DD')}</Typography>
+                    <Typography variant="body1" sx={{ mb: 2 }}>{dayjs(cita.fecha).format('DD/MM/YYYY')}</Typography>
+
+
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid >
                     <Typography variant="subtitle2"><strong>Dentista:</strong></Typography>
                     <Typography variant="body1" sx={{ mb: 2 }}>{cita.dentista?.nombre ?? 'Sin nombre'}</Typography>
-
+                    {/* 
                     <Typography variant="subtitle2"><strong>Email Dentista:</strong></Typography>
-                    <Typography variant="body1" sx={{ mb: 2 }}>{cita.dentista?.email}</Typography>
+                    <Typography variant="body1" sx={{ mb: 2 }}>{cita.dentista?.email}</Typography> */}
+
+                    {/* <Typography variant="subtitle2"><strong>Email Paciente:</strong></Typography>
+                    <Typography variant="body1" sx={{ mb: 2 }}>{cita.paciente?.email}</Typography> */}
+
+                    <Typography variant="subtitle2"><strong>Motivo de Consulta</strong></Typography>
+                    <Typography variant="body1" sx={{ mb: 2 }}>{cita.motivo ?? 'No especificado'}</Typography>
 
                     <Typography variant="subtitle2"><strong>Hora:</strong></Typography>
-                    <Typography variant="body1" sx={{ mb: 2 }}>{cita.hora.format('hh:mm A')}</Typography>
+                    <Typography variant="body1" sx={{ mb: 2 }}>
+                        {cita.hora.format('HH:mm')}
+                    </Typography>
 
-                    <Typography variant="subtitle2"><strong>Estado:</strong></Typography>
-                    <Typography variant="body1">{cita.estado}</Typography>
+
+
                 </Grid>
+
             </Grid>
+            <Typography variant="subtitle2" className='text-center'><strong>Estado:</strong></Typography>
+            <Typography variant="body1" style={{
+                textTransform: 'capitalize',
+                color: cita.estado === 'Agendada' || 'Realizada'? '#2e7d32' : '#b26a00',
+                backgroundColor: cita.estado === 'Agendada' || 'Realizada' ? '#e0f7e9' : '#ffff72',
+                textAlign: 'center',
+            }}>{cita.estado}</Typography>
 
             <Divider sx={{ my: 4 }} />
 
@@ -174,11 +199,13 @@ const DetalleCitaPage = () => {
 
                 <Button
                     variant="outlined"
-                    onClick={() => router.push('/registroCitas')}
+                    onClick={handleTerminarCita}
                     sx={{ px: 4 }}
                 >
                     Volver
                 </Button>
+
+
             </Box>
 
             <EditCitaModal

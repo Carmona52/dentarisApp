@@ -30,12 +30,30 @@ interface clinica {
 }
 
 interface dentista {
-    carrera: string;
-    cedula_profesional: string;
-    datos_usuario: usuario;
+  usuario_id: number;
+  nombre: string;
+  apellidos: string;
+  email: string;
+  telefono: string;
+  cedula_profesional: string;
+  carrera: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+interface createDentist{
+    rol:string;
+     nombre: string;
+  apellidos: string;
+  email: string;
+  telefono: string;
+  cedula_profesional: string;
+  carrera: string;
+
 }
 
 export type {usuario};
 export type {dentista};
 export type {clinica};
+export type {createDentist};
 

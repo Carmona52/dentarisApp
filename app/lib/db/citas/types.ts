@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
-export interface Usuario {
+
+interface Usuario {
   usuario_id: number;
   nombre: string | null;
   apellidos: string | null;
@@ -7,11 +8,26 @@ export interface Usuario {
   rol: number;
 }
 
-export interface Cita {
+interface Cita {
   id: number;
   fecha: dayjs.Dayjs;
   hora: dayjs.Dayjs;
   estado: string;
   paciente: Usuario;
   dentista: Usuario;
+  motivo?: string;
 }
+
+
+interface updateCita {
+    estado: string;
+    fecha:dayjs.Dayjs;
+    hora: String;
+    motivo?: string;
+}
+
+
+
+export type { Cita };
+export type { Usuario };
+export type { updateCita };
