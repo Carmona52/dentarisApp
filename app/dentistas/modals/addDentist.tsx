@@ -1,4 +1,3 @@
-// components/ModalCrearDentista.tsx
 import React, { useState } from 'react';
 import { createDentistPost } from '@/app/lib/db/dentists';
 import { createDentist } from '@/app/lib/db/types'; 
@@ -6,7 +5,7 @@ import { createDentist } from '@/app/lib/db/types';
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onDentistCreated: () => void; // Función para recargar la lista de dentistas
+  onDentistCreated: () => void; 
 }
 
 const ModalCrearDentista: React.FC<ModalProps> = ({ isOpen, onClose, onDentistCreated }) => {

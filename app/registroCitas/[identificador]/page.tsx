@@ -37,11 +37,12 @@ const DetalleCitaPage = () => {
             if (!json.success || !json.data) throw new Error('Respuesta inválida del servidor');
 
             const data = json.data;
+            const fechaCompleta = dayjs(`${data.fecha}T${data.hora}`, 'YYYY-MM-DDTHH:mm');
 
             setCita({
                 id: data.cita_id,
-                fecha: dayjs(data.fecha),
-                hora: dayjs(`2000-01-01T${data.hora}`, 'HH:mm:ss'),
+                fecha: fechaCompleta,
+                hora:fechaCompleta,
                 estado: data.estado,
                 paciente: data.paciente,
                 dentista: data.dentista,
@@ -113,27 +114,41 @@ const DetalleCitaPage = () => {
                     <Typography variant="subtitle2"><strong>Paciente:</strong></Typography>
                     <Typography variant="body1" sx={{ mb: 2 }}>{cita.paciente?.nombre ?? cita.paciente?.email}</Typography>
 
-                    <Typography variant="subtitle2"><strong>Email Paciente:</strong></Typography>
-                    <Typography variant="body1" sx={{ mb: 2 }}>{cita.paciente?.email}</Typography>
+
 
                     <Typography variant="subtitle2"><strong>Fecha:</strong></Typography>
-                    <Typography variant="body1">{cita.fecha.format('YYYY-MM-DD')}</Typography>
+                    <Typography variant="body1" sx={{ mb: 2 }}>{dayjs(cita.fecha).format('DD/MM/YYYY')}</Typography>
+
+
                 </Grid>
 
                 <Grid >
                     <Typography variant="subtitle2"><strong>Dentista:</strong></Typography>
                     <Typography variant="body1" sx={{ mb: 2 }}>{cita.dentista?.nombre ?? 'Sin nombre'}</Typography>
-
+                    {/* 
                     <Typography variant="subtitle2"><strong>Email Dentista:</strong></Typography>
-                    <Typography variant="body1" sx={{ mb: 2 }}>{cita.dentista?.email}</Typography>
+                    <Typography variant="body1" sx={{ mb: 2 }}>{cita.dentista?.email}</Typography> */}
+
+                    {/* <Typography variant="subtitle2"><strong>Email Paciente:</strong></Typography>
+                    <Typography variant="body1" sx={{ mb: 2 }}>{cita.paciente?.email}</Typography> */}
+
+                    <Typography variant="subtitle2"><strong>Motivo de Consulta</strong></Typography>
+                    <Typography variant="body1" sx={{ mb: 2 }}>{cita.motivo ?? 'No especificado'}</Typography>
 
                     <Typography variant="subtitle2"><strong>Hora:</strong></Typography>
-                    <Typography variant="body1" sx={{ mb: 2 }}>{cita.hora.format('hh:mm A')}</Typography>
+                    <Typography variant="body1" sx={{ mb: 2 }}>{cita.hora.format('hh:mm')}</Typography>
 
-                    <Typography variant="subtitle2"><strong>Estado:</strong></Typography>
-                    <Typography variant="body1">{cita.estado}</Typography>
+
                 </Grid>
+
             </Grid>
+            <Typography variant="subtitle2" className='text-center'><strong>Estado:</strong></Typography>
+            <Typography variant="body1" style={{
+                textTransform: 'capitalize',
+                color: cita.estado === 'Agendada' ? '#2e7d32' : '#b26a00',
+                backgroundColor: cita.estado === 'Agendada' ? '#e0f7e9' : '#ffff72',
+                textAlign: 'center',
+            }}>{cita.estado}</Typography>
 
             <Divider sx={{ my: 4 }} />
 

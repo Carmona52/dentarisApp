@@ -12,10 +12,12 @@ import {
     Paper,
     Typography,
     TextField,
+    TablePagination,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Cita } from "../types/Citas";
+import { useEffect, useState, useCallback } from "react";
+import { Cita } from "../lib/db/citas/types";
+import { fetchCitas } from "../lib/db/citas/citas";
 import dayjs from "dayjs";
 
 import AddCitaModal from "./PopUps/AddCita";
@@ -26,75 +28,53 @@ export default function TablaCitas() {
     const [error, setError] = useState<string | null>(null);
     const [busqueda, setBusqueda] = useState("");
     const [modalAbierto, setModalAbierto] = useState(false);
+
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+
     const abrirModal = () => setModalAbierto(true);
     const cerrarModal = () => setModalAbierto(false);
 
-
-    useEffect(() => {
-        const getCitas = async () => {
-            const token = localStorage.getItem("token");
-
-            if (!token) {
-                setError("Token no disponible. Por favor, inicie sesión.");
-                return;
-            }
-
-            try {
-                const response = await fetch("http://localhost:3002/api/citas/detalle", {
-                    method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                });
-
-                const json = await response.json();
-
-                if (!response.ok) {
-                    console.error("Error del servidor:", json);
-                    setError(`Error ${response.status}: ${json.message || "No se pudo obtener las citas."}`);
-                    return;
-                }
-
-                const citasDesdeApi = Array.isArray(json.data) ? json.data : [];
-
-                const citasTransformadas: Cita[] = citasDesdeApi.map((item: any) => ({
-                    id: item.cita_id,
-                    fecha: dayjs(item.fecha),
-                    hora: dayjs(`2000-01-01T${item.hora}`, 'YYYY-MM-DDTHH:mm:ss'),
-                    estado: item.estado,
-                    paciente: {
-                        usuario_id: item.paciente?.usuario_id,
-                        nombre: item.paciente?.nombre ?? null,
-                        apellidos: item.paciente?.apellidos ?? '',
-                        email: item.paciente?.email ?? '',
-                        rol: item.paciente?.rol_id,
-                    },
-
-                    dentista: {
-                        usuario_id: item.dentista?.usuario_id,
-                        nombre: item.dentista?.nombre ?? null,
-                        email: item.dentista?.email ?? '',
-                    },
-                }));
-
-
-                setCitas(citasTransformadas);
-
-            } catch (err) {
-                console.error("Error de red:", err);
-                setError("No se pudo conectar con el servidor.");
-            }
-        };
-
-        getCitas();
+    const getCitas = useCallback(async () => {
+        try {
+            const citasTransformadas = await fetchCitas();
+            setCitas(citasTransformadas);
+            setError(null);
+        } catch (err: any) {
+            setError(err.message || "No se pudo conectar con el servidor.");
+        }
     }, []);
 
+    useEffect(() => {
+        getCitas();
+    }, [getCitas]);
+
+    const handleCitaCreated = () => {
+        getCitas();
+        cerrarModal();
+    };
+
     const citasFiltradas = citas.filter((cita) =>
-        `${cita.paciente.nombre} ${cita.estado}`.toLowerCase().includes(busqueda.toLowerCase())
+        `${cita.paciente.nombre ?? ''} ${cita.paciente.apellidos ?? ''} ${cita.estado}`.toLowerCase().includes(busqueda.toLowerCase()) ||
+        (cita.dentista?.nombre ?? '').toLowerCase().includes(busqueda.toLowerCase()) ||
+        (cita.dentista?.email ?? '').toLowerCase().includes(busqueda.toLowerCase())
     );
 
-    console.log("Citas filtradas:", citas);
+    const handleChangePage = (event: unknown, newPage: number) => {
+        setPage(newPage);
+    };
+
+
+    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
+
+
+    const citasPaginadas = citasFiltradas.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+
+
+
 
     return (
         <>
@@ -107,9 +87,7 @@ export default function TablaCitas() {
                         onChange={(e) => setBusqueda(e.target.value)}
                         className="w-128"
                     />
-
                     <Button variant="contained" onClick={abrirModal}>Registrar Nueva Cita</Button>
-
                 </Box>
 
                 {error ? (
@@ -122,7 +100,7 @@ export default function TablaCitas() {
                             <TableHead>
                                 <TableRow>
                                     <TableCell>Nombre del Paciente</TableCell>
-                                    <TableCell>Nombre del dentista</TableCell>
+                                    <TableCell>Nombre del Dentista</TableCell>
                                     <TableCell>Fecha</TableCell>
                                     <TableCell>Hora</TableCell>
                                     <TableCell>Estado</TableCell>
@@ -130,20 +108,35 @@ export default function TablaCitas() {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {citasFiltradas.filter((cita) => cita.paciente?.rol === 3).map((cita) => (
+                                {citasPaginadas.map((cita) => (
                                     <TableRow key={cita.id}>
                                         <TableCell>
                                             {`${cita.paciente?.nombre ?? ''} ${cita.paciente?.apellidos ?? ''}`.trim() || cita.paciente?.email || 'Sin nombre'}
                                         </TableCell>
-
                                         <TableCell>
                                             {cita.dentista?.nombre ?? cita.dentista?.email ?? 'Sin nombre'}
                                         </TableCell>
-
                                         <TableCell>{dayjs(cita.fecha).format('YYYY-MM-DD')}</TableCell>
                                         <TableCell>{cita.hora.format('hh:mm A')}</TableCell>
 
-                                        <TableCell>{cita.estado}</TableCell>
+                                        <TableCell
+                                            style={{
+                                                textTransform: 'capitalize',
+                                                textAlign: 'center',
+                                                color:
+                                                    cita.estado === 'Agendada' ? 'green' :
+                                                        cita.estado === 'En proceso' ? '#b26a00' : 'red',
+                                                backgroundColor:
+                                                    cita.estado === 'Agendada' ? '#e0f7e9' :
+                                                        cita.estado === 'En proceso' ? '#fff8e1' :
+                                                            '#ffebee',
+                                            }}
+                                        >
+                                            {cita.estado}
+                                        </TableCell>
+
+
+
                                         <TableCell>
                                             <Button
                                                 variant="outlined"
@@ -157,12 +150,25 @@ export default function TablaCitas() {
                                 ))}
                             </TableBody>
                         </Table>
+
+                        <TablePagination
+                            rowsPerPageOptions={[5, 10, 25]}
+                            component="div"
+                            count={citasFiltradas.length}
+                            rowsPerPage={rowsPerPage}
+                            page={page}
+                            onPageChange={handleChangePage}
+                            onRowsPerPageChange={handleChangeRowsPerPage}
+                        />
                     </TableContainer>
                 )}
             </Box>
 
-            <AddCitaModal open={modalAbierto} handleClose={cerrarModal} />
-
+            <AddCitaModal
+                open={modalAbierto}
+                handleClose={cerrarModal}
+                onCitaCreated={handleCitaCreated}
+            />
         </>
     );
 }

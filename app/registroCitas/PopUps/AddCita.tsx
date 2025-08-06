@@ -1,18 +1,18 @@
+'use client';
+
 import React, { useEffect, useState } from 'react';
 import {
     Modal, Box, Fade, Backdrop, Button, Typography, Grid,
     Divider, TextField, MenuItem
 } from '@mui/material';
-import { useRouter } from 'next/navigation';
 import { Usuario } from '../types/DataType';
 
 
 interface openModalProps {
     open: boolean;
     handleClose: () => void;
+    onCitaCreated: () => void; 
 }
-
-
 
 const style = {
     position: 'absolute' as const,
@@ -29,15 +29,10 @@ const style = {
     p: 3,
 };
 
+const AddCitaModal: React.FC<openModalProps> = ({ open, handleClose, onCitaCreated }) => {
 
-
-const AddCitaModal: React.FC<openModalProps> = ({ open, handleClose }) => {
-
-    if (!open) return null;
-
-    const router = useRouter();
-    const [paciente, setPaciente] = useState<Usuario[]>([]);
-    const [dentista, setDentista] = useState<Usuario[]>([]);
+    const [pacientes, setPacientes] = useState<Usuario[]>([]);
+    const [dentistas, setDentistas] = useState<Usuario[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [formData, setFormData] = useState({
         paciente_id: '',
@@ -46,22 +41,64 @@ const AddCitaModal: React.FC<openModalProps> = ({ open, handleClose }) => {
         hora: '',
     });
 
+    const [loading, setLoading] = useState(false);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  
+    useEffect(() => {
+        if (!open) return; 
+
+        const fetchData = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                setError('Token no disponible. Por favor, inicie sesión.');
+                return;
+            }
+
+            try {
+               
+                const resPacientes = await fetch('http://localhost:3001/api/auth/patients', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const dataPacientes = await resPacientes.json();
+                if (!resPacientes.ok) throw new Error(dataPacientes.message || 'Error al obtener pacientes');
+                setPacientes(Array.isArray(dataPacientes) ? dataPacientes : dataPacientes.pacientes || []);
+
+                // Obtener dentistas
+                const resDentistas = await fetch('http://localhost:3001/api/auth/dentists', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const dataDentistas = await resDentistas.json();
+                if (!resDentistas.ok) throw new Error(dataDentistas.message || 'Error al obtener dentistas');
+                setDentistas(Array.isArray(dataDentistas) ? dataDentistas : dataDentistas.dentists || []);
+
+                setError(null);
+            } catch (err: any) {
+                console.error(err);
+                setError(err.message || 'No se pudo conectar con el servidor.');
+            }
+        };
+
+        fetchData();
+    }, [open]); 
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = async () => {
+        setLoading(true);
         const { paciente_id, dentista_id, fecha, hora } = formData;
         if (!paciente_id || !dentista_id || !fecha || !hora) {
             alert('Todos los campos son obligatorios.');
+            setLoading(false);
             return;
         }
 
         const citaDateTime = new Date(`${fecha}T${hora}`);
         if (citaDateTime < new Date()) {
             alert('La cita no puede ser en el pasado.');
+            setLoading(false);
             return;
         }
 
@@ -77,122 +114,42 @@ const AddCitaModal: React.FC<openModalProps> = ({ open, handleClose }) => {
             });
 
             if (!res.ok) throw new Error('Error al crear la cita');
-            alert('Cita registrada correctamente');
-            router.refresh();
-            router.push('/registroCitas');
+
+          
+            onCitaCreated(); 
+            
+  
             handleClose();
+            setFormData({
+                paciente_id: '',
+                dentista_id: '',
+                fecha: '',
+                hora: '',
+            });
+            alert('Cita registrada correctamente');
+
         } catch (err) {
             console.error(err);
             alert('Error al registrar la cita');
+        } finally {
+            setLoading(false);
         }
     };
 
-
-    useEffect(() => {
-        const fetchData = async () => {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                setError('Token no disponible. Por favor, inicie sesión.');
-                return;
-            }
-
-            try {
-                const response = await fetch('http://localhost:3001/api/auth/patients', {
-                    method: 'GET',
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    console.error('Error del servidor:', errorData);
-                    setError(
-                        `Error ${response.status}: ${errorData.message || 'No se pudo obtener pacientes.'
-                        }`
-                    );
-                    return;
-                }
-
-                const data = await response.json();
-                console.log('Datos de pacientes:', data);
-                const pacientesArray: Usuario[] = Array.isArray(data)
-                    ? data
-                    : data.pacientes || [];
-                setPaciente(
-                    pacientesArray.map(p => ({
-                        usuario_id: p.usuario_id,
-                        nombre: p.nombre || "Sin nombre",
-                        apellidos: p.apellidos || p.apellidos || "",
-                    }))
-                );
-            } catch (err) {
-                console.error('Error de red:', err);
-                setError('No se pudo conectar con el servidor.');
-            }
-        }
-
-        const fetchDentistas = async () => {
-            const token = localStorage.getItem("token");
-
-            if (!token) {
-                setError("Token no disponible. Por favor, inicie sesión.");
-                return;
-            }
-
-            try {
-                const response = await fetch("http://localhost:3001/api/auth/dentists", {
-                    method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    setError(
-                        `Error ${response.status}: ${errorData.message || "No se pudo obtener dentistas."}`
-                    );
-                    return;
-                }
-
-                const data = await response.json();
-                const dentistasArray = Array.isArray(data) ? data : data.dentists || data;
-
-                setDentista(
-                    dentistasArray.map(d => ({
-                        usuario_id: d.usuario_id,
-                        nombre: d.nombre || "Sin nombre",
-                        apellido: d.apellidos || ""
-                    }))
-                );
-
-
-                console.log("Dentistas obtenidos:", dentista);
-            } catch (err: any) {
-                console.error("Error de red:", err);
-                setError("No se pudo conectar con el servidor.");
-            }
-        };
-
-        fetchDentistas()
-        fetchData();
-    }, []);
-
-
     return (
-        <div>
+        <Modal open={open} onClose={handleClose} closeAfterTransition slots={{ backdrop: Backdrop }} slotProps={{ backdrop: { timeout: 500 } }}>
+            <Fade in={open}>
+                <Box sx={style}>
+                    <Typography variant="h6" sx={{ mb: 2 }}>Registro de Cita</Typography>
+                    <Divider sx={{ mb: 2 }} />
 
-            <Modal open={open} onClose={handleClose} closeAfterTransition slots={{ backdrop: Backdrop }} slotProps={{ backdrop: { timeout: 500 } }}>
-                <Fade in={open}>
-                    <Box sx={style}>
-                        <Typography variant="h6" sx={{ mb: 2 }}>Registro de Cita</Typography>
-                        <Divider sx={{ mb: 2 }} />
-
-                        <Grid container spacing={2}>
-
+                    <Grid container spacing={2} sx={{ mb: 2 }}>
+                        {error && (
+                            <Grid>
+                                <Typography color="error">{error}</Typography>
+                            </Grid>
+                        )}
+                        
                             <TextField
                                 select
                                 name="paciente_id"
@@ -200,17 +157,17 @@ const AddCitaModal: React.FC<openModalProps> = ({ open, handleClose }) => {
                                 value={formData.paciente_id}
                                 fullWidth
                                 required
-                                onChange={handleChange}>
-                                {paciente.map((p) => (
+                                onChange={handleChange}
+                            >
+                                {pacientes.map((p) => (
                                     <MenuItem key={p.usuario_id} value={p.usuario_id}>
                                         {p.nombre} {p.apellidos || ''}
-
                                     </MenuItem>
                                 ))}
                             </TextField>
+                       
 
-
-
+                        
                             <TextField
                                 select
                                 name="dentista_id"
@@ -220,14 +177,15 @@ const AddCitaModal: React.FC<openModalProps> = ({ open, handleClose }) => {
                                 required
                                 onChange={handleChange}
                             >
-                                {dentista.map((d) => (
+                                {dentistas.map((d) => (
                                     <MenuItem key={d.usuario_id} value={d.usuario_id}>
-                                        {d.nombre}
+                                        {d.nombre} {d.apellidos || ''}
                                     </MenuItem>
                                 ))}
                             </TextField>
+                        
 
-
+                        <Grid>
                             <TextField
                                 name="fecha"
                                 label="Fecha"
@@ -238,9 +196,8 @@ const AddCitaModal: React.FC<openModalProps> = ({ open, handleClose }) => {
                                 InputLabelProps={{ shrink: true }}
                                 onChange={handleChange}
                             />
-
-
-
+                        </Grid>
+                        <Grid>
                             <TextField
                                 name="hora"
                                 label="Hora"
@@ -252,27 +209,34 @@ const AddCitaModal: React.FC<openModalProps> = ({ open, handleClose }) => {
                                 onChange={handleChange}
                             />
                         </Grid>
+                    </Grid>
 
-
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
-                            <Button onClick={handleClose} sx={{
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
+                        <Button
+                            onClick={handleClose}
+                            sx={{
                                 bgcolor: "white", color: "gray", px: 6,
                                 '&:hover': { bgcolor: '#d32f2f', color: '#fff' }
-                            }}>
-                                Cancelar
-                            </Button>
-
-                            <Button onClick={handleSubmit} variant="contained" sx={{
+                            }}
+                            disabled={loading}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            onClick={handleSubmit}
+                            variant="contained"
+                            sx={{
                                 bgcolor: "#0647A0", px: 6,
                                 '&:hover': { bgcolor: '#0661D9' }
-                            }}>
-                                Guardar
-                            </Button>
-                        </Box>
+                            }}
+                            disabled={loading}
+                        >
+                            {loading ? 'Guardando...' : 'Guardar'}
+                        </Button>
                     </Box>
-                </Fade>
-            </Modal>
-        </div >
+                </Box>
+            </Fade>
+        </Modal>
     );
 };
 

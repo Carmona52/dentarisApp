@@ -54,13 +54,12 @@ export default function Home() {
 
                 const citasDesdeApi = Array.isArray(json.data) ? json.data : [];
 
-                console.log("Citas obtenidas:", citasDesdeApi);
-
                 const citasTransformadas: Cita[] = citasDesdeApi.map((item: any) => ({
                     id: item.cita_id,
                     fecha: dayjs(item.fecha),
                     hora: dayjs(`2000-01-01T${item.hora}`, 'YYYY-MM-DDTHH:mm:ss'),
                     estado: item.estado,
+                    motivo: item.motivo ? item.motivo : "No especificado",
                     paciente: {
                         usuario_id: item.paciente.usuario_id,
                         nombre: item.paciente.nombre,

@@ -114,7 +114,7 @@ export default function HistorialMedicoPage({ params }: { params: { identificado
                 <Grid container spacing={2}>
                     <Grid>
                         <Typography><strong>Nombre:</strong> {formData.nombre} {formData.apellidos}</Typography>
-                        <Typography><strong>Edad:</strong> {formData.fecha_nacimiento ?? 'No disponible'}</Typography>
+                        <Typography><strong>Edad:</strong> {formData.fecha_nacimiento}</Typography>
                         <Typography><strong>Género:</strong> {formData.genero ?? 'No especificado'}</Typography>
                         <Typography><strong>Correo:</strong> {formData.email}</Typography>
                     </Grid>

@@ -46,8 +46,8 @@ const NavigationSidebar: React.FC = () => {
     ];
 
     const section2: NavItem[] = [
+          { text: 'Personal Médico', icon: <SupervisedUserCircleIcon />, path: '/dentistas' },
         { text: 'Mi clínica', icon: <LocalHospitalIcon />, path: '/miClinica' },
-        { text: 'Personal Médico', icon: <SupervisedUserCircleIcon />, path: '/dentistas' },
         { text: 'Cuenta', icon: <AccountCircleIcon />, path: '/cuenta' },
     ];
 
@@ -110,7 +110,7 @@ const NavigationSidebar: React.FC = () => {
                 borderRight: '1px solid #E0E0E0',
                 px: 1,
             }}>
-            {/* Contenido scrollable */}
+    
             <Box
                 sx={{
                     flexGrow: 1,
@@ -137,7 +137,7 @@ const NavigationSidebar: React.FC = () => {
                 {renderSection(section3)}
             </Box>
 
-            {/* Ayuda (posición fija al fondo) */}
+ 
             <Box
                 sx={{
                     bgcolor: '#E6F6FD',

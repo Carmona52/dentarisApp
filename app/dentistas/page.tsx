@@ -16,10 +16,9 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-// Asegúrate de que esta ruta sea correcta
 import ModalCrearDentista from "./modals/addDentist"; 
 
-// Asegúrate de que estas rutas sean correctas
+
 import { getDentist } from "../lib/db/dentists";
 import { dentista } from "../lib/db/types";
 
@@ -30,7 +29,6 @@ export default function TablaPacientes() {
     const [busqueda, setBusqueda] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // Función para obtener los dentistas de la API
     const fetchDentistas = async () => {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -52,12 +50,10 @@ export default function TablaPacientes() {
         }
     };
 
-    // Este useEffect se ejecuta solo una vez al montar el componente
     useEffect(() => {
         fetchDentistas();
     }, []);
 
-    // Función para recargar la lista de dentistas después de crear uno nuevo
     const handleDentistCreated = () => {
         fetchDentistas();
     };
