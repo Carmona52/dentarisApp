@@ -77,8 +77,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
                     overflowY: "auto",
                     height: '100%',
                 }}
-                className="m-2 border-2 border-gray-200 ml-4"
-            >
+                className="m-2 border-2 border-gray-200 ml-4">
                 {children}
             </Box>
         </Box>
