@@ -186,8 +186,6 @@ export default function Register() {
                         </Typography>
                     </Box>
                 </Box>
-
-                {/* Lado derecho: Imagen */}
                 <Box className="w-2/3 h-full">
                     <img
                         src="/loginIMG.jpg"
