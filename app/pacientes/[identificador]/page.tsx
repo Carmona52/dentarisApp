@@ -21,6 +21,11 @@ export default function ConsultaForm() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    const apiUrl = process.env.NEXT_PUBLIC_PACIENTE_URL;
+    if(!apiUrl) {
+        throw new Error('No API returned');
+    }
+
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (!id || isNaN(id)) {
@@ -36,7 +41,7 @@ export default function ConsultaForm() {
 
         const fetchPaciente = async () => {
             try {
-                const res = await fetch(`http://localhost:3001/api/auth/patients/${id}`, {
+                const res = await fetch(`${apiUrl}/${id}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
@@ -80,7 +85,7 @@ export default function ConsultaForm() {
         if (!token || !formData) return;
 
         try {
-            const res = await fetch(`http://localhost:3001/api/auth/patients/${id}`, {
+            const res = await fetch(`${apiUrl}/${id}`,{
                 method: 'PUT',
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -111,7 +116,7 @@ export default function ConsultaForm() {
         if (!confirm('¿Estás seguro de que deseas eliminar este paciente?')) return;
 
         try {
-            const res = await fetch(`http://localhost:3001/api/auth/patients/${id}`, {
+            const res = await fetch(`${apiUrl}/${id}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -229,10 +234,12 @@ export default function ConsultaForm() {
                         </TextField>
                         <TextField
                             label="Alergias (separadas por comas)"
+                            type= "text"
                             value={formData?.alergias || ''}
                             onChange={handleAlergiasChange}
                             fullWidth
                             placeholder="Ej. Penicilina, Polen, Gluten"
+
                         />
                         <TextField
                             label="Notas"
@@ -244,12 +251,13 @@ export default function ConsultaForm() {
                         />
                     </Box>
 
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4, flexWrap: 'wrap', gap: 2 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4, flexWrap: 'wrap', gap: 2, width:"full" }}>
                         <Button
                             onClick={handleDelete}
                             variant="outlined"
                             color="error"
                             sx={{ px: 6, py: 1.5 }}
+                            disabled={true}
                         >
                             Eliminar
                         </Button>

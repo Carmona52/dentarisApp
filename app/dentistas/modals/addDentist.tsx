@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { createDentistPost } from '@/app/lib/db/dentists';
+import { createDentistPost } from '@/app/lib/db/dentist/dentists';
 import { createDentist } from '@/app/lib/db/types'; 
 
 interface ModalProps {

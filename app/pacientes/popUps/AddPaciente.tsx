@@ -42,6 +42,10 @@ const generos = [
 
 
 const AddPaciente: React.FC<AddPacienteProps> = ({ onPacienteAdded }) => {
+    const apiUrl = process.env.NEXT_PUBLIC_PACIENTE_URL;
+    if(!apiUrl) {
+        throw new Error('No API returned');
+    }
     const [open, setOpen] = useState(false);
     const [formData, setFormData] = useState({
         nombre: '',
@@ -59,14 +63,13 @@ const AddPaciente: React.FC<AddPacienteProps> = ({ onPacienteAdded }) => {
         nombre_contacto_emergencia: '',
         telefono_contacto_emergencia: '',
     });
-    const [loading, setLoading] = useState(false); // Estado para manejar el loading
-    const [error, setError] = useState<string | null>(null); // Estado para manejar errores
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const handleOpen = () => setOpen(true);
 
     const handleClose = () => {
         setOpen(false);
-        // Limpiamos el formulario y los estados al cerrar
         setFormData({
             nombre: '', apellidos: '', email: '', telefono: '',
             fecha_nacimiento: '', genero: '', pais_origen: '',
@@ -108,7 +111,7 @@ const AddPaciente: React.FC<AddPacienteProps> = ({ onPacienteAdded }) => {
                 rol: 'Paciente',
             };
 
-            const res = await fetch('http://localhost:3001/api/auth/patients', {
+            const res = await fetch(apiUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

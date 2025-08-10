@@ -6,7 +6,7 @@ interface Paciente {
     apellidos: string;
     email: string;
     telefono: string;
-    fecha_nacimiento: dayjs.Dayjs | Date;
+    fecha_nacimiento: dayjs.Dayjs | Date | string;
     genero: "Femenino" | "Masculino" | "Otro";
     pais_origen: string;
     direccion: string;

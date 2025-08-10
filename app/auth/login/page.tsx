@@ -4,7 +4,7 @@ import { Box, Button, FormLabel, TextField, Typography } from '@mui/material'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
-import { login } from '@/app/lib/db/auth'
+import { login } from '@/app/lib/db/auth/auth'
 
 export default function Login() {
     const router = useRouter()
