@@ -15,8 +15,8 @@ import {
     Dashboard as DashboardIcon,
     EventNote as EventNoteIcon,
     People as PeopleIcon,
-    LocalHospital as LocalHospitalIcon,
-    AccountCircle as AccountCircleIcon,
+    // LocalHospital as LocalHospitalIcon,
+    // AccountCircle as AccountCircleIcon,
     Settings as SettingsIcon,
     ExitToApp as ExitToAppIcon,
     HelpOutline as HelpOutlineIcon,
@@ -47,8 +47,8 @@ const NavigationSidebar: React.FC = () => {
 
     const section2: NavItem[] = [
           { text: 'Personal Médico', icon: <SupervisedUserCircleIcon />, path: '/dentistas' },
-        { text: 'Mi clínica', icon: <LocalHospitalIcon />, path: '/miClinica' },
-        { text: 'Cuenta', icon: <AccountCircleIcon />, path: '/cuenta' },
+        // { text: 'Mi clínica', icon: <LocalHospitalIcon />, path: '/miClinica' },
+        // { text: 'Cuenta', icon: <AccountCircleIcon />, path: '/cuenta' },
     ];
 
     const section3: NavItem[] = [

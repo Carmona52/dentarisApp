@@ -19,7 +19,7 @@ import { useEffect, useState } from "react";
 import ModalCrearDentista from "./modals/addDentist"; 
 
 
-import { getDentist } from "../lib/db/dentists";
+import { getDentist } from "../lib/db/dentist/dentists";
 import { dentista } from "../lib/db/types";
 
 export default function TablaPacientes() {
@@ -39,7 +39,6 @@ export default function TablaPacientes() {
         try {
             const data = await getDentist(token);
             if (data && data.success) {
-                // Asumiendo que `data.dentists` es el array de dentistas
                 setDentistas(data.dentists); 
             } else {
                 setError('La respuesta de la API no fue exitosa.');
@@ -58,7 +57,6 @@ export default function TablaPacientes() {
         fetchDentistas();
     };
 
-    // Filtrar los dentistas basándose en la búsqueda
     const filteredDentistas = dentistas.filter(dentista => 
         dentista.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
         dentista.apellidos.toLowerCase().includes(busqueda.toLowerCase()) ||

@@ -3,7 +3,7 @@
 import { Alert, Box, Button, FormLabel, TextField, Typography } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { useState } from "react";
-import { register } from "@/app/lib/db/auth";
+import { register } from "@/app/lib/db/auth/auth";
 
 import AvisoPrivacidadModal from '../modals/modalRegister';
 
@@ -71,9 +71,11 @@ export default function Register() {
                     message: `Error al registrar: ${response.message}`
                 });
             }
-        } catch (error) {
-            setAlert({ severity: 'error', message: 'Error al registrar' });
-
+        }catch (error) {
+            setAlert({
+                severity: 'error',
+                message: error instanceof Error ? error.message : 'Error inesperado',
+            });
         }
 
 

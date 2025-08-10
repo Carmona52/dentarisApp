@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
     Modal,
@@ -73,7 +72,6 @@ const AvisoPrivacidadModal: React.FC<AvisoPrivacidadModalProps> = ({
                     <Button
                         variant="text"
                         onClick={() => router.push('acuerdoprivacidad')}
-                        target="_blank"
                         sx={{
                             color: '#1976d2',
                             textDecoration: 'underline',

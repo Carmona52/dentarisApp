@@ -21,6 +21,12 @@ import { Paciente } from "../types/Pacientes"
 import dayjs from "dayjs";
 
 export default function TablaPacientes() {
+
+    const pacientesURL = process.env.NEXT_PUBLIC_PACIENTE_URL;
+    if(!pacientesURL) {
+        throw new Error("No se paciente encontrado");
+    }
+
     const router = useRouter();
     const [pacientes, setPacientes] = useState<Paciente[]>([]);
     const [error, setError] = useState<string | null>(null);
@@ -39,7 +45,7 @@ export default function TablaPacientes() {
         }
 
         try {
-            const response = await fetch("http://localhost:3001/api/auth/patients", {
+            const response = await fetch(pacientesURL, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${token}`,

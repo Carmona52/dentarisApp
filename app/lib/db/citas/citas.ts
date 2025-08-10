@@ -1,10 +1,13 @@
-const api_url = "http://localhost:3002/api/citas/";
-
-
 import dayjs from "dayjs";
 
 import { updateCita } from "./types";
 import { Cita } from "./types";
+
+const api_url = process.env.NEXT_PUBLIC_CITAS_URL;
+
+if (!api_url){
+    throw new Error("API URL doesn't exist");
+}
 
 
 export const fetchCitas = async (): Promise<Cita[]> => {

@@ -18,7 +18,7 @@ export default function ConsultaOdontograma() {
       </Typography>
 
       <Box sx={{ mt: 4 }}>
-        {/* Dientes Superiores */}
+
         <Grid container spacing={1} justifyContent="center">
           {teeth.slice(0, 16).map((tooth) => (
             <Grid key={tooth.id}>
@@ -48,7 +48,7 @@ export default function ConsultaOdontograma() {
           ))}
         </Grid>
 
-        {/* Espacio entre superiores e inferiores */}
+
         <Box sx={{ height: 32 }} />
 
         {/* Dientes Inferiores */}

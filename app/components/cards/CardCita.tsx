@@ -79,9 +79,7 @@ const MyCard: React.FC<MyCardProps> = ({ cita }) => {
     const CitaStart = async () => {
     const fechaFormateada = dayjs(cita.fecha).format("YYYY-MM-DD");
     const horaFormateada = dayjs(hora).format("HH:mm");
-const horaParseada = dayjs(horaFormateada, "HH:mm");
 
-    
 
  await updateEstadoCita(cita.id, {
     fecha: dayjs(fechaFormateada),

@@ -1,8 +1,12 @@
 import { clinica } from "@/app/lib/db/types";
 import dayjs from "dayjs";
 
-const api_URL = "http://localhost:3001/api/auth/login";
-const api_Register_URL = "http://localhost:3001/api/auth/register";
+const api_URL = process.env.NEXT_PUBLIC_LOGIN_URL;
+const api_Register_URL = process.env.NEXT_PUBLIC_REGISTER_URL;
+
+if (!api_URL || !api_Register_URL) {
+    throw new Error("NEXT_PUBLIC_LOGIN_URL no está definida en el archivo .env");
+}
 
 let errorMessage = "Error al iniciar sesión";
 

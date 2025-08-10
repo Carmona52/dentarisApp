@@ -1,11 +1,14 @@
-import { dentista } from "@/app/lib/db/types";
 import { createDentist } from "@/app/lib/db/types";
 
-const api_url: string = "http://localhost:3001/api/auth/dentists";
+const dentistas_url=process.env.NEXT_PUBLIC_DENTISTAS_URL;
+
+if (!dentistas_url) {
+    throw new Error("Error: No API URL provided");
+}
 
 export const getDentist = async (token: string)=> {
   try {
-    const res = await fetch(api_url, {
+    const res = await fetch(dentistas_url, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -29,7 +32,7 @@ export const getDentist = async (token: string)=> {
 
 export const createDentistPost = async (dentistaData: createDentist, token: string) => {
   try {
-    const response = await fetch(api_url, {
+    const response = await fetch(dentistas_url, {
       method: 'POST',
       body: JSON.stringify(dentistaData),
       headers: {
