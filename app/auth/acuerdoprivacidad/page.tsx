@@ -6,7 +6,6 @@ import {
     Typography,
     Container,
     Paper,
-    useTheme,
     Button,
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
