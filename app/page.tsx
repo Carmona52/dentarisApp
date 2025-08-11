@@ -10,10 +10,6 @@ import dayjs from 'dayjs';
 import { Cita } from "./lib/db/citas/types";
 import MyCard from "./components/cards/CardCita";
 
-const api_url = process.env.NEXT_PUBLIC_CITAS_DETALLES_URL;
-if(!api_url){
-    throw new Error('Missing API URL');
-}
 
 export default function Home() {
   const [citas, setCitas] = React.useState<Cita[]>([]);
@@ -21,7 +17,13 @@ export default function Home() {
   const hoy = dayjs().format('YYYY-MM-DD');
   const [fechaSeleccionada, setFechaSeleccionada] = React.useState(dayjs());
 
-  const fechaSeleccionadaFormato = fechaSeleccionada.format('YYYY-MM-DD');
+    const api_url = process.env.NEXT_PUBLIC_CITAS_DETALLES_URL;
+    if(!api_url){
+        throw new Error('Missing API URL');
+    }
+
+
+    const fechaSeleccionadaFormato = fechaSeleccionada.format('YYYY-MM-DD');
 
   const citasDelDiaSeleccionado = citas.filter(
     (cita) =>
@@ -94,7 +96,7 @@ export default function Home() {
 
         setCitas(citasTransformadas);
       } catch (error) {
-        setError("Error al obtener las citas. Por favor, inténtelo más tarde.");
+        throw error;
       }
     };
 
