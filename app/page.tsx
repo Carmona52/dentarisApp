@@ -10,6 +10,11 @@ import dayjs from 'dayjs';
 import { Cita } from "./lib/db/citas/types";
 import MyCard from "./components/cards/CardCita";
 
+const api_url = process.env.NEXT_PUBLIC_CITAS_DETALLES_URL;
+if(!api_url){
+    throw new Error('Missing API URL');
+}
+
 export default function Home() {
   const [citas, setCitas] = React.useState<Cita[]>([]);
   const [error, setError] = React.useState<string | null>(null);
@@ -48,7 +53,7 @@ export default function Home() {
       }
 
       try {
-        const response = await fetch("http://localhost:3002/api/citas/detalle", {
+        const response = await fetch(api_url, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,

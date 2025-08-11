@@ -4,11 +4,32 @@ import { updateCita } from "./types";
 import { Cita } from "./types";
 
 const api_url = process.env.NEXT_PUBLIC_CITAS_URL;
+const detalles_url = process.env.NEXT_PUBLIC_CITAS_DETALLES_URL;
 
-if (!api_url){
+if (!api_url || !detalles_url) {
     throw new Error("API URL doesn't exist");
 }
 
+export const createCita = async (cita:Cita,token:string) => {
+    const response = await fetch(api_url, {
+        method: "POST",
+        headers: {
+            authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            cita: cita,
+            "estado":"Agendada"
+        })
+    });
+
+    const data = await response.json();
+    if (!data.ok) {
+       throw new Error(data.message);
+    }
+    return data;
+
+}
 
 export const fetchCitas = async (): Promise<Cita[]> => {
   const token = localStorage.getItem("token");
@@ -16,7 +37,7 @@ export const fetchCitas = async (): Promise<Cita[]> => {
     throw new Error("Token no disponible. Por favor, inicie sesión.");
   }
 
-  const response = await fetch("http://localhost:3002/api/citas/detalle", {
+  const response = await fetch(detalles_url, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -67,7 +88,7 @@ export const getCitaDetalle = async (id: number): Promise<Cita> => {
     const token = localStorage.getItem('token');
     if (!token) throw new Error('Token no disponible. Por favor, inicia sesión.');
 
-    const res = await fetch(`http://localhost:3002/api/citas/${id}/detalle`, {
+    const res = await fetch(`${api_url}/${id}/detalle`, {
         headers: { Authorization: `Bearer ${token}` },
     });
 

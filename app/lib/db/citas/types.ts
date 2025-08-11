@@ -9,7 +9,7 @@ interface Usuario {
 }
 
 interface Cita {
-  id: number;
+  id?: number;
   fecha: dayjs.Dayjs;
   hora: dayjs.Dayjs;
   estado: string;

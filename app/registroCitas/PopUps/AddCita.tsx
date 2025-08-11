@@ -38,7 +38,14 @@ const motivosConsulta = [
     "Otro"
 ];
 
+const api_url = process.env.NEXT_PUBLIC_CITAS_URL;
+const paciente_url = process.env.NEXT_PUBLIC_PACIENTE_URL;
+if (!api_url || !paciente_url) {
+   throw new Error("Falta URL");
+}
+
 const AddCitaModal: React.FC<openModalProps> = ({ open, handleClose, onCitaCreated }) => {
+
 
     const [pacientes, setPacientes] = useState<Usuario[]>([]);
     const [dentistas, setDentistas] = useState<Usuario[]>([]);
@@ -66,7 +73,7 @@ const AddCitaModal: React.FC<openModalProps> = ({ open, handleClose, onCitaCreat
 
             try {
 
-                const resPacientes = await fetch('http://localhost:3001/api/auth/patients', {
+                const resPacientes = await fetch(paciente_url, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const dataPacientes = await resPacientes.json();
@@ -74,7 +81,7 @@ const AddCitaModal: React.FC<openModalProps> = ({ open, handleClose, onCitaCreat
                 setPacientes(Array.isArray(dataPacientes) ? dataPacientes : dataPacientes.pacientes || []);
 
 
-                const resDentistas = await fetch('http://localhost:3001/api/auth/dentists', {
+                const resDentistas = await fetch(paciente_url, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const dataDentistas = await resDentistas.json();
@@ -98,7 +105,7 @@ const AddCitaModal: React.FC<openModalProps> = ({ open, handleClose, onCitaCreat
 
     const handleSubmit = async () => {
         setLoading(true);
-        const { paciente_id, dentista_id, fecha, hora, motivo } = formData;
+        const { paciente_id, dentista_id, fecha, hora} = formData;
         if (!paciente_id || !dentista_id || !fecha || !hora) {
             alert('Todos los campos son obligatorios.');
             setLoading(false);
@@ -114,7 +121,7 @@ const AddCitaModal: React.FC<openModalProps> = ({ open, handleClose, onCitaCreat
 
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:3002/api/citas', {
+            const res = await fetch(api_url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

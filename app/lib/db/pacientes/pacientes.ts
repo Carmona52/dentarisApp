@@ -52,6 +52,6 @@ export const deletePaciente = async (id: number, token:string) => {
 
         return true;
     }catch(error) {
-        throw new Error(error);
+        return error;
     }
 }
