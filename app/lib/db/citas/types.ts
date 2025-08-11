@@ -22,7 +22,7 @@ interface Cita {
 interface updateCita {
     estado: string;
     fecha:dayjs.Dayjs;
-    hora: String;
+    hora: string;
     motivo?: string;
 }
 

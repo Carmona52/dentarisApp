@@ -1,14 +1,14 @@
 import dayjs from "dayjs";
 
 interface usuario{
-    usuario_id: Number;
+    usuario_id: number;
     rol_id: number;
     consultorio_id: number;
     nombre: string;
     apellidos: string;
     email: string;
     telefono: string;
-    fecha_nacimiento: dayjs.Dayjs | Date;
+    fecha_nacimiento: dayjs.Dayjs | string;
     genero: "Femenino" | "Masculino" | "Otro";
     pais_origen: string;
     direccion: string;

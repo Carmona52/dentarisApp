@@ -156,8 +156,7 @@ export default function TablaPacientes() {
                                         <Button
                                             variant="outlined"
                                             size="small"
-                                            onClick={() => router.push(`/pacientes/${paciente.usuario_id}`)}
-                                        >
+                                            onClick={() => router.push(`/pacientes/${paciente.usuario_id}`)}>
                                             Ver Paciente
                                         </Button>
                                     </TableCell>
