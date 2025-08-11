@@ -8,6 +8,7 @@ import {
 } from '@mui/material';
 import { useParams, useRouter } from 'next/navigation';
 import { Paciente } from '../../types/Pacientes';
+import {deletePaciente} from "@/app/lib/db/pacientes/pacientes";
 
 const stringifyAlergias = (alergias: string[]): string =>
     alergias.join(',');
@@ -116,16 +117,11 @@ export default function ConsultaForm() {
         if (!confirm('¿Estás seguro de que deseas eliminar este paciente?')) return;
 
         try {
-            const res = await fetch(`${apiUrl}/${id}`, {
-                method: 'DELETE',
-                headers: { Authorization: `Bearer ${token}` },
-            });
-
-            const { error } = await res.json();
-            if (!res.ok) alert(`Error: ${error ?? 'No se pudo eliminar'}`);
-            else {
-                alert('Paciente eliminado correctamente');
-                setTimeout(() => router.push('/pacientes'), 1000);
+           const success = await deletePaciente(id,token);
+            if (success) {
+                alert('Paciente Eliminado');
+            } else {
+                alert('Error al eliminar');
             }
         } catch {
             alert('Error de red al eliminar');
@@ -257,7 +253,7 @@ export default function ConsultaForm() {
                             variant="outlined"
                             color="error"
                             sx={{ px: 6, py: 1.5 }}
-                            disabled={true}
+
                         >
                             Eliminar
                         </Button>

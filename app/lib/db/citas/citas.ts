@@ -90,7 +90,7 @@ export const getCitaDetalle = async (id: number): Promise<Cita> => {
     };
 };
 
-export const updateEstadoCita = async (id: number, cita: updateCita): Promise<void> => {
+export const updateEstadoCita = async (id: number, cita: updateCita) => {
   const token = localStorage.getItem("token");
   if (!token) {
     throw new Error("Token no disponible. Por favor, inicia sesión.");

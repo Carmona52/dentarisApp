@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
     Modal,
     Box,
@@ -12,8 +12,11 @@ import {
     Grid,
     MenuItem,
     Divider,
-    CircularProgress, 
+    CircularProgress,
 } from '@mui/material';
+
+import {createUser} from "@/app/lib/db/pacientes/pacientes";
+
 
 interface AddPacienteProps {
     onPacienteAdded?: () => void;
@@ -35,15 +38,15 @@ const style = {
 };
 
 const generos = [
-    { label: 'Femenino', value: 'F' },
-    { label: 'Masculino', value: 'M' },
-    { label: 'Otro', value: 'O' }
+    {label: 'Femenino', value: 'F'},
+    {label: 'Masculino', value: 'M'},
+    {label: 'Otro', value: 'O'}
 ];
 
 
-const AddPaciente: React.FC<AddPacienteProps> = ({ onPacienteAdded }) => {
+const AddPaciente: React.FC<AddPacienteProps> = ({onPacienteAdded}) => {
     const apiUrl = process.env.NEXT_PUBLIC_PACIENTE_URL;
-    if(!apiUrl) {
+    if (!apiUrl) {
         throw new Error('No API returned');
     }
     const [open, setOpen] = useState(false);
@@ -81,8 +84,8 @@ const AddPaciente: React.FC<AddPacienteProps> = ({ onPacienteAdded }) => {
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        const {name, value} = e.target;
+        setFormData((prev) => ({...prev, [name]: value}));
     };
 
     const handleSubmit = async () => {
@@ -90,50 +93,42 @@ const AddPaciente: React.FC<AddPacienteProps> = ({ onPacienteAdded }) => {
         const requiredFields = ['nombre', 'apellidos', 'email', 'fecha_nacimiento', 'genero'];
         const missing = requiredFields.filter((field) => !formData[field as keyof typeof formData]);
 
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            setError('Token no disponible');
+            setLoading(false);
+            return;
+        }
+
         if (missing.length > 0) {
             setError(`Campos obligatorios faltantes: ${missing.join(', ')}`);
             return;
         }
 
+        const body = {
+            ...formData,
+            fecha_nacimiento: formData.fecha_nacimiento,
+            rol: 'Paciente',
+        };
+
+
         setLoading(true);
 
         try {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                setError('Token no disponible');
-                setLoading(false);
-                return;
+            const success = await createUser(body, token);
+
+            if (success) {
+                alert('Paciente registrado correctamente');
+            } else {
+                alert('El paciente no se pudo registrar');
             }
 
-            const body = {
-                ...formData,
-                fecha_nacimiento: formData.fecha_nacimiento,
-                rol: 'Paciente',
-            };
-
-            const res = await fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify(body),
-            });
-
-            if (!res.ok) {
-                const errorData = await res.json();
-                console.error('Error del servidor:', errorData);
-                setError(`Error ${res.status}: ${errorData.message || 'Error al registrar el paciente'}`);
-                setLoading(false);
-                return;
-            }
-            
-     
             if (onPacienteAdded) {
                 onPacienteAdded();
             }
 
-            alert('Paciente registrado correctamente');
+
             handleClose();
         } catch (err) {
             console.error(err);
@@ -152,47 +147,48 @@ const AddPaciente: React.FC<AddPacienteProps> = ({ onPacienteAdded }) => {
                 open={open}
                 onClose={handleClose}
                 closeAfterTransition
-                slots={{ backdrop: Backdrop }}
-                slotProps={{ backdrop: { timeout: 500 } }}
-            >
+                slots={{backdrop: Backdrop}}
+                slotProps={{backdrop: {timeout: 500}}}>
                 <Fade in={open}>
                     <Box sx={style}>
-                        <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
+                        <Typography variant="h6" component="h2" sx={{mb: 2}}>
                             Registro de Paciente
                         </Typography>
-                        <Divider sx={{ mb: 2 }} />
+                        <Divider sx={{mb: 2}}/>
 
                         {error && (
-                            <Typography color="error" sx={{ mb: 2 }}>
+                            <Typography color="error" sx={{mb: 2}}>
                                 {error}
                             </Typography>
                         )}
 
                         <Grid container spacing={2}>
-                            <Grid >
-                                <TextField name='nombre' label='Ingrese el nombre' value={formData.nombre} required fullWidth onChange={handleChange} />
+                            <Grid>
+                                <TextField name='nombre' label='Ingrese el nombre' value={formData.nombre} required
+                                           fullWidth onChange={handleChange}/>
                             </Grid>
                             <Grid>
-                                <TextField name='apellidos' label='Ingrese los apellidos' value={formData.apellidos} required fullWidth onChange={handleChange} />
+                                <TextField name='apellidos' label='Ingrese los apellidos' value={formData.apellidos}
+                                           required fullWidth onChange={handleChange}/>
                             </Grid>
 
-                            
-                                <TextField
-                                    select
-                                    name='genero'
-                                    label='Seleccione el género'
-                                    value={formData.genero}
-                                    required
-                                    fullWidth
-                                    onChange={handleChange}
-                                >
-                                    {generos.map((option) => (
-                                        <MenuItem key={option.value} value={option.value}>
-                                            {option.label}
-                                        </MenuItem>
-                                    ))}
-                                </TextField>
-                          
+
+                            <TextField
+                                select
+                                name='genero'
+                                label='Seleccione el género'
+                                value={formData.genero}
+                                required
+                                fullWidth
+                                onChange={handleChange}
+                            >
+                                {generos.map((option) => (
+                                    <MenuItem key={option.value} value={option.value}>
+                                        {option.label}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+
 
                             <Grid>
                                 <TextField
@@ -203,43 +199,56 @@ const AddPaciente: React.FC<AddPacienteProps> = ({ onPacienteAdded }) => {
                                     required
                                     fullWidth
                                     onChange={handleChange}
-                                    InputLabelProps={{ shrink: true }}
+                                    InputLabelProps={{shrink: true}}
                                 />
                             </Grid>
 
                             <Grid>
-                                <TextField name='email' label='Ingrese el email' value={formData.email} required fullWidth onChange={handleChange} />
-                            </Grid>
-                            <Grid >
-                                <TextField name='telefono' label='Ingrese el teléfono' value={formData.telefono} fullWidth onChange={handleChange} />
-                            </Grid>
-                            <Grid >
-                                <TextField name='pais_origen' label='Ingrese el país de origen' value={formData.pais_origen} fullWidth onChange={handleChange} />
+                                <TextField name='email' label='Ingrese el email' value={formData.email} required
+                                           fullWidth onChange={handleChange}/>
                             </Grid>
                             <Grid>
-                                <TextField name='direccion' label='Ingrese la dirección' value={formData.direccion} fullWidth onChange={handleChange} />
+                                <TextField name='telefono' label='Ingrese el teléfono' value={formData.telefono}
+                                           fullWidth onChange={handleChange}/>
                             </Grid>
+                            {/*<Grid>*/}
+                            {/*    <TextField name='pais_origen' label='Ingrese el país de origen'*/}
+                            {/*               value={formData.pais_origen} fullWidth onChange={handleChange}/>*/}
+                            {/*</Grid>*/}
+                            {/*<Grid>*/}
+                            {/*    <TextField name='direccion' label='Ingrese la dirección' value={formData.direccion}*/}
+                            {/*               fullWidth onChange={handleChange}/>*/}
+                            {/*</Grid>*/}
+                            {/*<Grid>*/}
+                            {/*    <TextField name='notas' label='Ingrese notas adicionales' value={formData.notas}*/}
+                            {/*               multiline rows={2} fullWidth onChange={handleChange}/>*/}
+                            {/*</Grid>*/}
+                                <TextField name='alergias' label='Ingrese alergias' value={formData.alergias} multiline
+                                           rows={2} fullWidth onChange={handleChange}/>
+
+                            {/*<Grid>*/}
+                            {/*    <TextField name='profesion' label='Ingrese la profesión' value={formData.profesion}*/}
+                            {/*               fullWidth onChange={handleChange}/>*/}
+                            {/*</Grid>*/}
+                            {/*<Grid>*/}
+                            {/*    <TextField name='numero_identificacion' label='Ingrese el número de identificación'*/}
+                            {/*               value={formData.numero_identificacion} fullWidth onChange={handleChange}/>*/}
+                            {/*</Grid>*/}
                             <Grid>
-                                <TextField name='notas' label='Ingrese notas adicionales' value={formData.notas} multiline rows={2} fullWidth onChange={handleChange} />
-                            </Grid>
-                            <Grid >
-                                <TextField name='alergias' label='Ingrese alergias' value={formData.alergias} multiline rows={2} fullWidth onChange={handleChange} />
-                            </Grid>
-                            <Grid >
-                                <TextField name='profesion' label='Ingrese la profesión' value={formData.profesion} fullWidth onChange={handleChange} />
-                            </Grid>
-                            <Grid >
-                                <TextField name='numero_identificacion' label='Ingrese el número de identificación' value={formData.numero_identificacion} fullWidth onChange={handleChange} />
-                            </Grid>
-                            <Grid >
-                                <TextField name='nombre_contacto_emergencia' label='Ingrese el nombre del contacto de emergencia' value={formData.nombre_contacto_emergencia} fullWidth onChange={handleChange} />
-                            </Grid>
-                            <Grid >
-                                <TextField name='telefono_contacto_emergencia' label='Ingrese el teléfono del contacto de emergencia' value={formData.telefono_contacto_emergencia} fullWidth onChange={handleChange} />
+                                <TextField sx={{mb:2}} name='nombre_contacto_emergencia'
+                                           label='Ingrese el nombre del contacto de emergencia'
+                                           value={formData.nombre_contacto_emergencia} fullWidth
+                                           onChange={handleChange}/>
+
+
+                                <TextField name='telefono_contacto_emergencia'
+                                           label='Ingrese el teléfono del contacto de emergencia'
+                                           value={formData.telefono_contacto_emergencia} fullWidth
+                                           onChange={handleChange}/>
                             </Grid>
                         </Grid>
 
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', my: 3 }}>
+                        <Box sx={{display: 'flex', justifyContent: 'space-between', my: 3}}>
                             <Button onClick={handleClose} sx={{
                                 backgroundColor: "white", color: "gray", p: 2, px: 10,
                                 '&:hover': {
@@ -263,7 +272,7 @@ const AddPaciente: React.FC<AddPacienteProps> = ({ onPacienteAdded }) => {
                                 }}
                                 disabled={loading}
                             >
-                                {loading ? <CircularProgress size={24} color="inherit" /> : 'Guardar'}
+                                {loading ? <CircularProgress size={24} color="inherit"/> : 'Guardar'}
                             </Button>
                         </Box>
                     </Box>
