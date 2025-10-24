@@ -88,8 +88,10 @@ export const getCitaDetalle = async (id: number): Promise<Cita> => {
     const token = localStorage.getItem('token');
     if (!token) throw new Error('Token no disponible. Por favor, inicia sesión.');
 
-    const res = await fetch(`${api_url}/${id}/detalle`, {
-        headers: { Authorization: `Bearer ${token}` },
+    const res = await fetch(`http://localhost:3002/api/citas/${id}/detalle`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
     });
 
     const json = await res.json();
@@ -103,7 +105,7 @@ export const getCitaDetalle = async (id: number): Promise<Cita> => {
     return {
         id: data.cita_id,
         fecha: fechaCompleta,
-  hora: fechaCompleta,
+        hora: fechaCompleta,
         estado: data.estado,
         paciente: data.paciente,
         dentista: data.dentista,

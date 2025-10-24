@@ -104,6 +104,7 @@ export default function Login() {
                 <Typography variant="body1" className="mt-4 text-gray-600" onClick={() => router.push('/auth/register')}>
                     ¿No tienes una cuenta?{' '}
                     <span className="text-blue-600 hover:underline cursor-pointer">¡Regístrate!</span>
+                    <Typography>Hola, prueba de visual studio 2022</Typography>
                 </Typography>
             </Box>
         </Box>

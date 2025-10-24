@@ -40,6 +40,7 @@ const motivosConsulta = [
 
 const api_url = process.env.NEXT_PUBLIC_CITAS_URL;
 const paciente_url = process.env.NEXT_PUBLIC_PACIENTE_URL;
+const dentista_url = process.env.NEXT_PUBLIC_DENTISTAS_URL;
 if (!api_url || !paciente_url) {
    throw new Error("Falta URL");
 }
@@ -72,7 +73,6 @@ const AddCitaModal: React.FC<openModalProps> = ({ open, handleClose, onCitaCreat
             }
 
             try {
-
                 const resPacientes = await fetch(paciente_url, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
@@ -81,7 +81,7 @@ const AddCitaModal: React.FC<openModalProps> = ({ open, handleClose, onCitaCreat
                 setPacientes(Array.isArray(dataPacientes) ? dataPacientes : dataPacientes.pacientes || []);
 
 
-                const resDentistas = await fetch(paciente_url, {
+                const resDentistas = await fetch(dentista_url, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const dataDentistas = await resDentistas.json();

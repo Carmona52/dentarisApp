@@ -13,6 +13,7 @@ import {
 import html2pdf from 'html2pdf.js';
 import { Paciente } from '../../../types/Pacientes';
 import dayjs from 'dayjs';
+import { useRouter } from 'next/navigation'; // 👈 Importa el router
 
 const parseAlergias = (alergias: string | null | undefined): string[] =>
     alergias ? alergias.split(',').map(a => a.trim()) : [];
@@ -33,6 +34,7 @@ export default function HistorialMedicoPage({ params }: { params: { identificado
     const { identificador } = params;
     const id = Number(identificador);
     const pdfRef = useRef<HTMLDivElement>(null);
+    const router = useRouter(); // 👈 Hook de navegación
 
     const [formData, setFormData] = useState<Paciente | null>(null);
     const [loading, setLoading] = useState(true);
@@ -113,13 +115,23 @@ export default function HistorialMedicoPage({ params }: { params: { identificado
     return (
         <Box sx={{ p: 4 }}>
             {/* Header */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3, gap: 2 }}>
                 <Typography variant="h4" fontWeight="bold">
                     Historial Médico
                 </Typography>
-                <Button variant="contained" color="primary" onClick={handleDownloadPDF}>
-                    Descargar PDF
-                </Button>
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                    <Button variant="contained" color="primary" onClick={handleDownloadPDF}>
+                        Descargar PDF
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        color="secondary"
+                        onClick={() => router.push(`/pacientes/Odontograma/${identificador}`)}
+                    >
+                        Mostrar Odontograma
+                    </Button>
+
+                </Box>
             </Box>
 
             {/* Content */}
@@ -131,7 +143,7 @@ export default function HistorialMedicoPage({ params }: { params: { identificado
                 <Divider sx={{ my: 2 }} />
 
                 <Grid container spacing={2}>
-                    <Grid >
+                    <Grid>
                         <InfoRow label="Nombre" value={`${formData.nombre} ${formData.apellidos}`} />
                         <InfoRow label="Edad" value={`${calcularEdad(formData.fecha_nacimiento)} años`} />
                         <InfoRow label="Género" value={formData.genero} />
